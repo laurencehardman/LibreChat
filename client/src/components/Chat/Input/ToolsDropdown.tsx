@@ -22,6 +22,7 @@ import MCPSubMenu from '~/components/Chat/Input/MCPSubMenu';
 import { useGetStartupConfig } from '~/data-provider';
 import { useBadgeRowContext } from '~/Providers';
 import { cn } from '~/utils';
+import KnowledgeBaseSubMenu from '~/components/Chat/Input/KnowledgeBaseSubMenu';
 
 interface ToolsDropdownProps {
   disabled?: boolean;
@@ -40,6 +41,7 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     artifactsEnabled,
     fileSearchEnabled,
     skillsEnabled,
+    knowledgeBaseEnabled,
   } = useAgentCapabilities(context?.agentsConfig?.capabilities ?? defaultAgentCapabilities);
 
   const canUseWebSearch = useHasAccess({
@@ -56,6 +58,8 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     permissionType: PermissionTypes.FILE_SEARCH,
     permission: Permissions.USE,
   });
+
+  console.log({ knowledgeBaseEnabled, canUseFileSearch });
 
   const canUseMcp = useHasAccess({
     permissionType: PermissionTypes.MCP_SERVERS,
@@ -92,6 +96,7 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
   } = webSearch ?? {};
   const { isPinned: isCodePinned, setIsPinned: setIsCodePinned } = codeInterpreter ?? {};
   const { isPinned: isFileSearchPinned, setIsPinned: setIsFileSearchPinned } = fileSearch ?? {};
+  const { isPinned: isKnowledgeBasePinned, setIsPinned: setIsKnowledgeBasePinned } = context?.knowledgeBase ?? {};
   const { isPinned: isArtifactsPinned, setIsPinned: setIsArtifactsPinned } = artifacts ?? {};
   const { isPinned: isSkillsPinned, setIsPinned: setIsSkillsPinned } = skills ?? {};
   const { isPinned: isMemoryPinned, setIsPinned: setIsMemoryPinned } = memory ?? {};
@@ -116,6 +121,11 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     const newValue = !fileSearch?.toggleState;
     fileSearch?.debouncedChange({ value: newValue });
   }, [fileSearch]);
+
+  const handleKnowledgeBaseToggle = useCallback(() => {
+    const newValue = !context?.knowledgeBase?.toggleState;
+    context?.knowledgeBase?.debouncedChange({ value: newValue });
+  }, [context?.knowledgeBase]);
 
   const handleArtifactsToggle = useCallback(() => {
     const currentState = artifacts?.toggleState;
@@ -187,6 +197,13 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
           </button>
         </div>
       ),
+    });
+  }
+
+  if (knowledgeBaseEnabled && canUseFileSearch) {
+    dropdownItems.push({
+      hideOnClick: false,
+      render: (props) => <KnowledgeBaseSubMenu {...props} />,
     });
   }
 

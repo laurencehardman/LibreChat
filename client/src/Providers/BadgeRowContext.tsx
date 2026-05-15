@@ -11,6 +11,7 @@ import {
 import { getTimestampedValue } from '~/utils/timestamps';
 import { useGetStartupConfig } from '~/data-provider';
 import { ephemeralAgentByConvoId } from '~/store';
+import { useKnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
 
 interface BadgeRowContextType {
   conversationId?: string | null;
@@ -21,6 +22,7 @@ interface BadgeRowContextType {
   webSearch: ReturnType<typeof useToolToggle>;
   artifacts: ReturnType<typeof useToolToggle>;
   fileSearch: ReturnType<typeof useToolToggle>;
+  knowledgeBase: ReturnType<typeof useToolToggle>;
   codeInterpreter: ReturnType<typeof useToolToggle>;
   searchApiKeyForm: ReturnType<typeof useSearchApiKeyForm>;
   mcpServerManager: ReturnType<typeof useMCPServerManager>;
@@ -101,8 +103,10 @@ export default function BadgeRowProvider({
       const fileSearchToggleKey = `${LocalStorageKeys.LAST_FILE_SEARCH_TOGGLE_}${storageSuffix}`;
       const artifactsToggleKey = `${LocalStorageKeys.LAST_ARTIFACTS_TOGGLE_}${storageSuffix}`;
       const skillsToggleKey = `${LocalStorageKeys.LAST_SKILLS_TOGGLE_}${storageSuffix}`;
+      const knowledgeBaseToggleKey = `${LocalStorageKeys.LAST_KNOWLEDGE_BASE_TOGGLE_}${storageSuffix}`;
       const memoryToggleKey = `${LocalStorageKeys.LAST_MEMORY_TOGGLE_}${storageSuffix}`;
 
+      const knowledgeBaseToggleValue = getTimestampedValue(knowledgeBaseToggleKey);
       const codeToggleValue = getTimestampedValue(codeToggleKey);
       const webSearchToggleValue = getTimestampedValue(webSearchToggleKey);
       const fileSearchToggleValue = getTimestampedValue(fileSearchToggleKey);
@@ -133,6 +137,14 @@ export default function BadgeRowProvider({
           initialValues[Tools.file_search] = JSON.parse(fileSearchToggleValue);
         } catch (e) {
           console.error('Failed to parse file search toggle value:', e);
+        }
+      }
+
+      if (knowledgeBaseToggleValue !== null) {
+        try {
+          initialValues[Tools.knowledge_base] = JSON.parse(knowledgeBaseToggleValue);
+        } catch (e) {
+          console.error('Failed to parse knowledge search toggle value:', e);
         }
       }
 
@@ -234,6 +246,14 @@ export default function BadgeRowProvider({
     },
   });
 
+  const knowledgeBase = useToolToggle({
+    conversationId,
+    storageContextKey,
+    toolKey: Tools.knowledge_base,
+    localStorageKey: LocalStorageKeys.LAST_KNOWLEDGE_BASE_TOGGLE_,
+    isAuthenticated: true,
+  });
+
   /** FileSearch hook */
   const fileSearch = useToolToggle({
     conversationId,
@@ -271,6 +291,7 @@ export default function BadgeRowProvider({
   });
 
   const mcpServerManager = useMCPServerManager({ conversationId, storageContextKey });
+  const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
 
   const value: BadgeRowContextType = {
     skills,
@@ -278,6 +299,8 @@ export default function BadgeRowProvider({
     webSearch,
     artifacts,
     fileSearch,
+    knowledgeBase,
+    knowledgeBaseManager,
     agentsConfig,
     conversationId,
     storageContextKey,

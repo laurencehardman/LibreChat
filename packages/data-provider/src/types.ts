@@ -105,6 +105,8 @@ export type TEphemeralAgent = {
   mcp?: string[];
   web_search?: boolean;
   file_search?: boolean;
+  knowledge_base?: boolean;
+  knowledge_base_projects?: boolean;
   execute_code?: boolean;
   artifacts?: string;
   skills?: boolean;

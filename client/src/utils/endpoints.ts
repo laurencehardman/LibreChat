@@ -301,6 +301,7 @@ export function applyModelSpecEphemeralAgent({
     web_search: modelSpec.webSearch ?? false,
     file_search: modelSpec.fileSearch ?? false,
     execute_code: modelSpec.executeCode ?? false,
+    knowledge_base: modelSpec.knowledgeBase ?? true,
     memory: modelSpec.memory ?? false,
     artifacts: modelSpec.artifacts === true ? 'default' : modelSpec.artifacts || '',
   };
@@ -313,6 +314,7 @@ export function applyModelSpecEphemeralAgent({
       ['execute_code', LocalStorageKeys.LAST_CODE_TOGGLE_],
       ['web_search', LocalStorageKeys.LAST_WEB_SEARCH_TOGGLE_],
       ['file_search', LocalStorageKeys.LAST_FILE_SEARCH_TOGGLE_],
+      ['knowledge_base', LocalStorageKeys.LAST_KNOWLEDGE_BASE_TOGGLE_],
       ['artifacts', LocalStorageKeys.LAST_ARTIFACTS_TOGGLE_],
       ['memory', LocalStorageKeys.LAST_MEMORY_TOGGLE_],
     ];
@@ -341,6 +343,7 @@ export function applyModelSpecEphemeralAgent({
     }
   }
 
+  console.log('modelSpec.knowledgeBase:', modelSpec?.knowledgeBase, 'agent:', agent);
   updateEphemeralAgent(key, agent);
 }
 

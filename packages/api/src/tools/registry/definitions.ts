@@ -351,6 +351,45 @@ export const fileSearchSchema: ExtendedJsonSchema = {
   required: ['query'],
 };
 
+/** Knowledge Search tool JSON schema */
+export const knowledgeBaseSchema: ExtendedJsonSchema = {
+
+  type: 'object',
+  properties: {
+    query: {
+      type: 'string',
+      description:
+          'Search query matched by embedding similarity against document chunks. Use short, precise terms likely to appear in source code — function names, component names, file paths, string literals. 2-4 words outperforms long descriptive sentences.',
+    },
+    project_name: {
+      type: 'string',
+      description:
+          'Optional. Restrict search to a specific project. Use when the user explicitly names a project or when previous context makes it clear which project is relevant.',
+    },
+    source_type: {
+      type: 'string',
+      enum: ['source_code', 'documentation'],
+      description:
+          'Optional. Restrict search by source type (e.g. code, documentation, meeting_notes). Use when the user specifies a type of content or when the query implies one.',
+    },
+  },
+  required: ['query'],
+};
+
+let knowledgeBaseProjectsInitialized = false;
+
+export function setKnowledgeBaseProjects(projects: string[]) {
+  if (projects.length > 0) {
+    knowledgeBaseSchema.properties.project_name.enum = projects;
+    knowledgeBaseProjectsInitialized = true;
+  }
+}
+
+export function isKnowledgeBaseProjectsInitialized() {
+  return knowledgeBaseProjectsInitialized;
+}
+
+
 /** Tool definitions registry - maps tool names to their definitions */
 export const toolDefinitions: Record<string, ToolRegistryDefinition> = {
   google: {
@@ -422,6 +461,20 @@ export const toolDefinitions: Record<string, ToolRegistryDefinition> = {
     description:
       'Performs semantic search across attached "file_search" documents using natural language queries. This tool analyzes the content of uploaded files to find relevant information, quotes, and passages that best match your query.',
     schema: fileSearchSchema,
+    toolType: 'builtin',
+    responseFormat: 'content_and_artifact',
+  },
+  knowledge_base: {
+    name: 'knowledge_base',
+    description:
+        'Performs semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity, not by keyword match.\n\n'
+        + 'CRITICAL USAGE RULES:\n'
+        + '- Fire ALL queries in a single batch at the start of your response. Do not search, think, then search again. One batch, then stop calling this tool.\n'
+        + '- 3 queries maximum TOTAL for the entire turn. Not 3 per round. Not 3 per topic. Three calls across all rounds combined.\n'
+        + '- Rephrasing the same question returns near-identical top-ranked chunks. Vary queries by ASPECT (e.g. "frontend toggle component" vs "backend auth middleware"), never by rewording the same question.\n'
+        + '- The tool returns short snippets, not full files. You will never see the complete source of a file. Synthesise from the chunks in your single batch — do not hunt for a canonical source file or a "better" version.\n'
+        + '- After your batch of queries returns, answer immediately. Do not search again.',
+    schema: knowledgeBaseSchema,
     toolType: 'builtin',
     responseFormat: 'content_and_artifact',
   },

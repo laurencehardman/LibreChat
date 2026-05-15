@@ -80,3 +80,5 @@ export * from './rum/proxy';
 export type * from './mcp/types';
 export type * from './flow/types';
 export type * from './types';
+
+export { setKnowledgeBaseProjects } from './tools/registry/definitions';

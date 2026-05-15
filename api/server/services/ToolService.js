@@ -513,6 +513,7 @@ const nativeTools = new Set([
   Tools.file_search,
   Tools.web_search,
   Tools.memory,
+  Tools.knowledge_base,
 ]);
 
 /** Checks if a tool name is a known built-in tool */
@@ -570,6 +571,9 @@ async function loadToolDefinitionsWrapper({ req, res, agent, streamId = null, to
   const filteredTools = agent.tools?.filter((tool) => {
     if (tool === Tools.file_search) {
       return checkCapability(AgentCapabilities.file_search);
+    }
+    if (tool === Tools.knowledge_base) {
+      return true;                                 // always available
     }
     if (tool === Tools.execute_code) {
       return checkCapability(AgentCapabilities.execute_code);
@@ -1135,6 +1139,8 @@ async function loadAgentTools({
     } else if (tool === Tools.web_search) {
       includesWebSearch = checkCapability(AgentCapabilities.web_search);
       return includesWebSearch;
+    } else if (tool === Tools.knowledge_base) {
+      return true;
     } else if (tool === Tools.memory) {
       return checkCapability(AgentCapabilities.memory);
     } else if (tool === ASK_USER_QUESTION_TOOL_NAME) {

@@ -49,6 +49,7 @@ const {
 } = require('~/server/services/MCP');
 const { getMCPRequestContext } = require('~/server/services/MCPRequestContext');
 const { createFileSearchTool, primeFiles: primeSearchFiles } = require('./fileSearch');
+const { createKnowledgeBaseTool } = require('./knowledgeBase');
 const { primeFiles: primeCodeFiles } = require('~/server/services/Files/Code/process');
 const { getUserPluginAuthValue } = require('~/server/services/PluginService');
 const { loadAuthValues } = require('~/server/services/Tools/credentials');
@@ -349,6 +350,11 @@ const loadTools = async ({
           entity_id: agent?.id,
           fileCitations,
         });
+      };
+      continue;
+    } else if (tool === Tools.knowledge_base) {
+      requestedTools[tool] = async () => {
+        return createKnowledgeBaseTool({ userId: user });
       };
       continue;
     } else if (tool === Tools.web_search) {

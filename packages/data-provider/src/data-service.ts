@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios';
+import axios from 'axios';
 import type { TFileConfig } from './file-config';
 import type * as t from './types';
 import * as permissions from './accessPermissions';
@@ -663,6 +664,11 @@ export const deleteAgentAction = async ({
  */
 export const getMCPServers = async (): Promise<mcp.MCPServersListResponse> => {
   return request.get(endpoints.mcp.servers);
+};
+
+export const getKnowledgeBaseProjects = async (): Promise<Array<{ name: string; displayName?: string; description?: string }>> => {
+  const { data } = await axios.get('/api/knowledge/projects');
+  return data;
 };
 
 /**

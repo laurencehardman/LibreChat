@@ -50,6 +50,7 @@ export type TModelSpec = {
   /** Hide the chat input tool badge row while this model spec is active. */
   hideBadgeRow?: boolean;
   webSearch?: boolean;
+  knowledgeBase?: boolean;
   fileSearch?: boolean;
   executeCode?: boolean;
   memory?: boolean;

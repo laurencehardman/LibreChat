@@ -6,6 +6,7 @@ const cors = require('cors');
 const axios = require('axios');
 const express = require('express');
 const passport = require('passport');
+const { getKnowledgeProjects } = require('./routes/knowledge');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -170,6 +171,9 @@ const startServer = async () => {
     }
   }
 
+
+  const initialiseKnowledgeBase = require('./services/initialiseKnowledgeBase');
+
   const sendIndexHtml = (req, res) => {
     res.set({
       'Cache-Control': process.env.INDEX_CACHE_CONTROL || 'no-cache, no-store, must-revalidate',
@@ -195,6 +199,8 @@ const startServer = async () => {
     }
     return res.status(200).send('OK');
   });
+
+  app.get('/api/knowledge/projects', getKnowledgeProjects);
 
   /* Middleware */
   app.use(metricsMiddleware);
@@ -341,6 +347,7 @@ const startServer = async () => {
      */
     try {
       await runAsSystem(async () => {
+        await initialiseKnowledgeBase();
         await initializeMCPs();
         await initializeOAuthReconnectManager();
       });

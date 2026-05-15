@@ -50,6 +50,11 @@ export default function useAgentCapabilities(
     [capabilities],
   );
 
+  const knowledgeBaseEnabled = useMemo(
+      () => capabilities?.includes(AgentCapabilities.knowledge_base) ?? false,
+      [capabilities],
+  );
+
   const webSearchEnabled = useMemo(
     () => capabilities?.includes(AgentCapabilities.web_search) ?? false,
     [capabilities],
@@ -97,6 +102,7 @@ export default function useAgentCapabilities(
     webSearchEnabled,
     fileSearchEnabled,
     deferredToolsEnabled,
+    knowledgeBaseEnabled,
     programmaticToolsEnabled,
     backgroundToolsEnabled,
   };

@@ -562,6 +562,7 @@ export enum Capabilities {
 export enum AgentCapabilities {
   hide_sequential_outputs = 'hide_sequential_outputs',
   programmatic_tools = 'programmatic_tools',
+  knowledge_base = 'knowledge_base',
   end_after_tools = 'end_after_tools',
   deferred_tools = 'deferred_tools',
   execute_code = 'execute_code',
@@ -682,6 +683,7 @@ export type TAssistantEndpoint = z.infer<typeof assistantEndpointSchema>;
 export const defaultAgentCapabilities = [
   // Commented as requires latest Code Interpreter API
   // AgentCapabilities.programmatic_tools,
+  AgentCapabilities.knowledge_base,
   AgentCapabilities.deferred_tools,
   AgentCapabilities.execute_code,
   AgentCapabilities.file_search,
@@ -2784,12 +2786,16 @@ export enum LocalStorageKeys {
   AUTO_EXPAND_TOOLS = 'autoExpandTools',
   /** Last selected MCP values per conversation ID */
   LAST_MCP_ = 'LAST_MCP_',
+  LAST_KNOWLEDGE_BASE_ = 'LAST_KNOWLEDGE_BASE_',
+  PIN_KNOWLEDGE_BASE_ = 'PIN_KNOWLEDGE_BASE_',
   /** Last checked toggle for Code Interpreter API per conversation ID */
   LAST_CODE_TOGGLE_ = 'LAST_CODE_TOGGLE_',
   /** Last checked toggle for Web Search per conversation ID */
   LAST_WEB_SEARCH_TOGGLE_ = 'LAST_WEB_SEARCH_TOGGLE_',
   /** Last checked toggle for File Search per conversation ID */
   LAST_FILE_SEARCH_TOGGLE_ = 'LAST_FILE_SEARCH_TOGGLE_',
+  /** Same for knowledge_base */
+  LAST_KNOWLEDGE_BASE_TOGGLE_ = 'LAST_KNOWLEDGE_BASE_TOGGLE_',
   /** Last checked toggle for Artifacts per conversation ID */
   LAST_ARTIFACTS_TOGGLE_ = 'LAST_ARTIFACTS_TOGGLE_',
   /** Last checked toggle for Skills per conversation ID */

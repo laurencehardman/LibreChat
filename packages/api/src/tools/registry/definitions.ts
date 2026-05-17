@@ -351,6 +351,7 @@ export const fileSearchSchema: ExtendedJsonSchema = {
   required: ['query'],
 };
 
+const STATIC_SOURCE_TYPES = ['source_code', 'documentation', 'build_script', 'config', 'test'];
 /** Knowledge Search tool JSON schema */
 export const knowledgeBaseSchema: ExtendedJsonSchema = {
 
@@ -368,7 +369,7 @@ export const knowledgeBaseSchema: ExtendedJsonSchema = {
     },
     source_type: {
       type: 'string',
-      enum: ['source_code', 'documentation'],
+      enum: STATIC_SOURCE_TYPES,
       description:
           'Optional. Restrict search by source type (e.g. code, documentation, meeting_notes). Use when the user specifies a type of content or when the query implies one.',
     },

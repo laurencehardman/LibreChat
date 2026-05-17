@@ -108,6 +108,10 @@ const BaseClient = require('~/app/clients/BaseClient');
 const { getMCPManager } = require('~/config');
 const db = require('~/models');
 
+const { enrichSystemPrompt } = require('~/server/services/RAG/preprocess');
+const ragConfig = require('~/server/services/RAG/config');
+const jwt = require('jsonwebtoken');
+
 const loadAgent = (params) => loadAgentFn(params, { getAgent: db.getAgent, getMCPServerTools });
 
 const MEMORY_INPUT_CHARS_PER_TOKEN = 8;
@@ -427,6 +431,44 @@ class AgentClient extends BaseClient {
           }))
         : []),
     ];
+
+    /** RAG preprocessing: enrich agent instructions with retrieved knowledge chunks.
+     *  Runs once per agent, best-effort — failures are logged and the original
+     *  instructions are preserved. */
+    if (ragConfig.enabled) {
+      const lastUserMsg = orderedMessages[orderedMessages.length - 1];
+      const userText = lastUserMsg?.text ?? lastUserMsg?.content;
+      const normalizedText =
+          typeof userText === 'string'
+              ? userText
+              : Array.isArray(userText)
+                  ? userText.find(p => p?.type === 'text')?.text
+                  : undefined;
+
+      if (normalizedText && typeof normalizedText === 'string') {
+        const authToken = jwt.sign(
+            { id: this.options.req.user?.id },
+            process.env.JWT_SECRET,
+            { expiresIn: '60s' },
+        );
+
+        await Promise.all(
+            allAgents.map(async ({ agent }) => {
+              const basePrompt = agent.instructions || '';
+              try {
+                agent.instructions = await enrichSystemPrompt(basePrompt, normalizedText, authToken);
+              } catch (err) {
+                logger.warn('[RAG] Enrichment failed for agent', {
+                  agentId: agent.id,
+                  error: err.message,
+                });
+              }
+            }),
+        );
+      }
+    }
+
+
     const sharedRunAttachmentIds = new Set();
     if (this.options.attachments) {
       const attachments = await this.options.attachments;

@@ -4,7 +4,7 @@ const { tool } = require('@librechat/agents/langchain/tools');
 const { generateShortLivedToken } = require('@librechat/api');
 const { Tools } = require('librechat-data-provider');
 
-const STATIC_SOURCE_TYPES = ['source_code', 'documentation'];
+const STATIC_SOURCE_TYPES = ['source_code', 'documentation', 'build_script', 'config', 'test'];
 
 const knowledgeBaseJsonSchema = {
     type: 'object',

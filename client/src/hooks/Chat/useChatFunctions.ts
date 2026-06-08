@@ -14,6 +14,7 @@ import {
   replaceSpecialVars,
   isAssistantsEndpoint,
   getDefaultParamsEndpoint,
+  LocalStorageKeys,
 } from 'librechat-data-provider';
 import type {
   TMessage,
@@ -602,6 +603,20 @@ export default function useChatFunctions({
       currentMessages = currentMessages.filter((msg) => msg.messageId !== responseMessageId);
     }
 
+    let knowledge_base_projects: string[] | undefined;
+    try {
+      const storageKey = `${LocalStorageKeys.LAST_KNOWLEDGE_BASE_}${conversationId ?? 'new'}`;
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          knowledge_base_projects = parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     const submissionMessages = isRegenerate
       ? getRegenerateSubmissionMessages({
           messages: currentMessages,
@@ -634,6 +649,7 @@ export default function useChatFunctions({
       ephemeralAgent,
       editedContent,
       addedConvo,
+      knowledge_base_projects,
       manualSkills: manualSkills.length > 0 ? manualSkills : undefined,
     };
 

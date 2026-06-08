@@ -985,6 +985,25 @@ async function loadToolDefinitionsWrapper({ req, res, agent, streamId = null, to
     );
   }
 
+  const hasKnowledgeBase = filteredTools.includes(Tools.knowledge_base);
+
+  if (hasKnowledgeBase) {
+    toolContextMap[Tools.knowledge_base] =
+        '# `' + Tools.knowledge_base + '`:\n' +
+        'Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.\n' +
+        '\n' +
+        '**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**\n' +
+        '\n' +
+        'Because rephrasing a query returns substantially the same top results, iterating through keyword variations is wasteful.\n' +
+        '\n' +
+        'Hard limits:\n' +
+        '- 3 knowledge_base calls maximum per user question, no exceptions.\n' +
+        '- Never issue two queries that differ only by rewording. A second query is only justified if it targets a genuinely different aspect of the question (e.g. "endpoint routes" vs "middleware implementation" — different, not synonyms).\n' +
+        '- If you haven\'t found enough after 3 queries, synthesise the best answer you can from what you have and note any gaps.\n' +
+        '\n' +
+        'The tool returns chunks, not whole files. Synthesise from the chunks you receive — do not expect to find a single canonical source document, and do not keep searching hoping for one.';
+  }
+
   /**
    * `files` carry the upload session_ids; we surface them so client.js can
    * seed `Graph.sessions[EXECUTE_CODE]` before run start. Without that seed,

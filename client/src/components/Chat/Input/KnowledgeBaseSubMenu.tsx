@@ -2,8 +2,8 @@
 
 import React from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronRight, Database, Check } from 'lucide-react';
-import { PinIcon } from '@librechat/client';
+import { ChevronRight, Check } from 'lucide-react';
+import { PinIcon, VectorIcon } from '@librechat/client';
 import { useBadgeRowContext } from '~/Providers';
 import { useLocalize } from '~/hooks';
 import { cn } from '~/utils';
@@ -64,7 +64,7 @@ const KnowledgeBaseSubMenu = React.forwardRef<HTMLDivElement, KnowledgeBaseSubMe
                         }
                     >
                         <div className="flex items-center gap-2">
-                            <Database className="h-5 w-5 flex-shrink-0 text-text-primary" aria-hidden="true" />
+                            <VectorIcon className="h-5 w-5 flex-shrink-0 text-text-primary" aria-hidden="true" />
                             <span>{placeholder || placeholderText || localize('com_assistants_knowledge_base')}</span>
                             <ChevronRight className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
                         </div>

@@ -139,6 +139,7 @@ export type TPayload = Partial<TMessage> &
      * before the LLM turn runs.
      */
     manualSkills?: string[];
+    knowledge_base_projects?: string[];
     /** Browser IANA timezone (e.g. `America/New_York`) used to resolve local-time prompt variables server-side. */
     timezone?: string;
   };
@@ -172,6 +173,7 @@ export type TSubmission = {
   editedContent?: TEditedContent | null;
   /** Added conversation for multi-convo feature */
   addedConvo?: TConversation;
+  knowledge_base_projects?: string[];
   /** Skills the user invoked via the `$` popover for this submission. */
   manualSkills?: string[];
 };

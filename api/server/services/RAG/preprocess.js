@@ -25,8 +25,8 @@ const REFORMULATION_PROMPT = [
  * @param {string} [authToken]  - Optional JWT for RAG API authentication.
  * @returns {Promise<string>}
  */
-async function enrichSystemPrompt(systemPrompt, userMessage, authToken) {
-    if (!config.enabled) {
+async function enrichSystemPrompt(systemPrompt, userMessage, authToken, projectNames = []) {
+    if (!projectNames || projectNames.length === 0) {
         return systemPrompt;
     }
 
@@ -36,7 +36,7 @@ async function enrichSystemPrompt(systemPrompt, userMessage, authToken) {
 
     try {
         const refinedQuery = await reformulateQuery(userMessage);
-        const chunks = await retrieveChunks(refinedQuery, authToken);
+        const chunks = await retrieveChunks(refinedQuery, authToken, projectNames[0]);
 
         if (!chunks || chunks.length === 0) {
             logger.debug('[RAG] No chunks returned for query', {
@@ -77,7 +77,7 @@ async function reformulateQuery(userMessage) {
     });
 
     const response = await axios.post(url, body, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         timeout: config.reformulationTimeout,
     });
 
@@ -103,17 +103,25 @@ async function reformulateQuery(userMessage) {
  * @param {string} [authToken] - Optional JWT for Authorization header.
  * @returns {Promise<Array<[object, number]>>}
  */
-async function retrieveChunks(query, authToken) {
+async function retrieveChunks(query, authToken, projectNames = []) {
     const url = `${config.apiUrl}/query_global`;
+    const body = {query, k: config.topK};
+    if (projectNames.length === 1) {
+        body.project_name = projectNames[0];
+    }
 
-    logger.debug('[RAG] Retrieving chunks', { query: query.substring(0, 80), k: config.topK });
+    logger.debug('[RAG] Retrieving chunks', {
+        query: query.substring(0, 80),
+        k: config.topK,
+        project_name: body.project_name
+    });
 
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = {'Content-Type': 'application/json'};
     if (authToken) {
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-    const response = await axios.post(url, { query, k: config.topK }, {
+    const response = await axios.post(url, body, {
         headers,
         timeout: config.retrievalTimeout,
     });
@@ -125,7 +133,7 @@ async function retrieveChunks(query, authToken) {
         return [];
     }
 
-    logger.debug('[RAG] Retrieved chunks', { count: results.length });
+    logger.debug('[RAG] Retrieved chunks', {count: results.length});
 
     return results;
 }
@@ -161,4 +169,4 @@ function buildEnrichedSystemPrompt(basePrompt, chunks) {
     ].join('\n');
 }
 
-module.exports = { enrichSystemPrompt, reformulateQuery, retrieveChunks, buildEnrichedSystemPrompt };
+module.exports = {enrichSystemPrompt, reformulateQuery, retrieveChunks, buildEnrichedSystemPrompt};

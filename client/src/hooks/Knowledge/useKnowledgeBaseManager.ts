@@ -102,22 +102,30 @@ export function useKnowledgeBaseManager({
     /* ------------------------------------------------------------------ */
     /*  Toggle                                                             */
     /* ------------------------------------------------------------------ */
+    // const toggleProject = useCallback((name: string) => {
+    //     setSelectedProjects((prev) => {
+    //         if (prev.includes(name)) {
+    //             const next = prev.filter((n) => n !== name);
+    //             if (next.length === 0) {
+    //                 showToast({
+    //                     message: 'At least one project must be selected for Knowledge Base search to work.',
+    //                     status: 'warning',
+    //                 });
+    //                 return prev;
+    //             }
+    //             return next;
+    //         }
+    //         return [...prev, name];
+    //     });
+    // }, [showToast]);
     const toggleProject = useCallback((name: string) => {
         setSelectedProjects((prev) => {
             if (prev.includes(name)) {
-                const next = prev.filter((n) => n !== name);
-                if (next.length === 0) {
-                    showToast({
-                        message: 'At least one project must be selected for Knowledge Base search to work.',
-                        status: 'warning',
-                    });
-                    return prev;
-                }
-                return next;
+                return prev.filter((n) => n !== name);
             }
             return [...prev, name];
         });
-    }, [showToast]);
+    }, []);
 
     /* ------------------------------------------------------------------ */
     /*  Placeholder                                                        */

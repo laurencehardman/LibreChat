@@ -23,6 +23,7 @@ export default function createPayload(submission: t.TSubmission) {
     editedContent,
     ephemeralAgent,
     endpointOption,
+    knowledge_base_projects,
     manualSkills,
   } = submission;
   const { conversationId } = s.tConvoUpdateSchema.parse(conversation);
@@ -51,6 +52,7 @@ export default function createPayload(submission: t.TSubmission) {
     isContinued: !!(isEdited && isContinued),
     ephemeralAgent: s.isAssistantsEndpoint(endpoint) ? undefined : ephemeralAgent,
     manualSkills: s.isAssistantsEndpoint(endpoint) ? undefined : manualSkills,
+    knowledge_base_projects,
     timezone: getUserTimezone(),
   };
 

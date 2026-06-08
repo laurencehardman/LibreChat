@@ -254,6 +254,19 @@ export default function BadgeRowProvider({
     isAuthenticated: true,
   });
 
+  const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
+  // Sync: empty project selection → disable tool; non-empty → enable
+  useEffect(() => {
+    const hasProjects = (knowledgeBaseManager?.selectedProjects?.length ?? 0) > 0;
+    const currentlyEnabled = knowledgeBase?.toggleState === true;
+
+    if (hasProjects && !currentlyEnabled) {
+      knowledgeBase?.debouncedChange({ value: true });
+    } else if (!hasProjects && currentlyEnabled) {
+      knowledgeBase?.debouncedChange({ value: false });
+    }
+  }, [knowledgeBaseManager?.selectedProjects]);
+
   /** FileSearch hook */
   const fileSearch = useToolToggle({
     conversationId,
@@ -262,6 +275,7 @@ export default function BadgeRowProvider({
     localStorageKey: LocalStorageKeys.LAST_FILE_SEARCH_TOGGLE_,
     isAuthenticated: true,
   });
+
 
   /** Artifacts hook - using a custom key since it's not a Tool but a capability */
   const artifacts = useToolToggle({
@@ -291,7 +305,7 @@ export default function BadgeRowProvider({
   });
 
   const mcpServerManager = useMCPServerManager({ conversationId, storageContextKey });
-  const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
+  // const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
 
   const value: BadgeRowContextType = {
     skills,

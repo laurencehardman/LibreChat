@@ -2,11 +2,17 @@ import { Tools } from 'librechat-data-provider';
 
 export function buildKnowledgeBaseContext(): string {
     return `# \`${Tools.knowledge_base}\`:
-Semantic search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.
+Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.
 
-**Use this tool ONLY when the user explicitly asks you to search the knowledge base.**
+**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**
 
-Because rephrased queries return substantially the same top-ranked chunks, do NOT iterate through keyword variations. Issue at most 3 queries targeting genuinely different aspects. Synthesise your answer from the chunks received — do not hunt for a canonical source file or keep searching hoping for a perfect match.
+Because rephrasing a query returns substantially the same top results, iterating through keyword variations is wasteful.
 
-**No citation anchors needed** — reference source files inline where helpful (e.g. "In \`config.py\`, the \`LogMiddleware\` class...").`.trim();
+Hard limits:
+- 3 \`${Tools.knowledge_base}\` calls maximum per user question, no exceptions.
+- Never issue two queries that differ only by rewording. A second query is only justified if it targets a genuinely different aspect of the question (e.g. "endpoint routes" vs "middleware implementation" — different, not synonyms).
+- If you haven't found enough after 3 queries, synthesise the best answer you can from what you have and note any gaps.
+
+The tool returns chunks, not whole files. Synthesise from the chunks you receive — do not expect to find a single canonical source document, and do not keep searching hoping for one.`.trim();
 }
+

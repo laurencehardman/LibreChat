@@ -2,9 +2,9 @@
 
 import React, { memo, useMemo } from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronDown, Database, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
-import { TooltipAnchor } from '@librechat/client';
+import { TooltipAnchor, VectorIcon } from '@librechat/client';
 import { useHasAccess, useLocalize } from '~/hooks';
 import { useBadgeRowContext } from '~/Providers';
 import { cn } from '~/utils';
@@ -58,7 +58,7 @@ function KnowledgeBaseSelectContent() {
                     />
                 }
             >
-                <Database className="size-3.5 text-green-600 dark:text-green-400" />
+                <VectorIcon className="size-3.5 text-green-600 dark:text-green-400" />
                 <span className="hidden truncate text-text-primary md:block">
           {count === 0 ? placeholderText : displayText}
         </span>

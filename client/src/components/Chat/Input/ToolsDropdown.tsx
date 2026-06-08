@@ -200,12 +200,12 @@ const ToolsDropdown = ({ disabled }: ToolsDropdownProps) => {
     });
   }
 
-  if (knowledgeBaseEnabled && canUseFileSearch) {
+  // if (knowledgeBaseEnabled && canUseFileSearch) {
     dropdownItems.push({
       hideOnClick: false,
       render: (props) => <KnowledgeBaseSubMenu {...props} />,
     });
-  }
+  // }
 
   if (canUseWebSearch && webSearchEnabled) {
     dropdownItems.push({

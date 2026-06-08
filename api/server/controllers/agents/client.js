@@ -109,7 +109,6 @@ const { getMCPManager } = require('~/config');
 const db = require('~/models');
 
 const { enrichSystemPrompt } = require('~/server/services/RAG/preprocess');
-const ragConfig = require('~/server/services/RAG/config');
 const jwt = require('jsonwebtoken');
 
 const loadAgent = (params) => loadAgentFn(params, { getAgent: db.getAgent, getMCPServerTools });
@@ -432,31 +431,36 @@ class AgentClient extends BaseClient {
         : []),
     ];
 
-    /** RAG preprocessing: enrich agent instructions with retrieved knowledge chunks.
-     *  Runs once per agent, best-effort — failures are logged and the original
-     *  instructions are preserved. */
-    if (ragConfig.enabled) {
+    /** RAG preprocessing: enrich agent instructions with retrieved knowledge chunks
+     *  when the user has selected knowledge base projects for this conversation.
+     *  Runs once per agent, only on the first turn — enriched instructions persist
+     *  in context for subsequent turns. Best-effort: failures are logged, original
+     *  instructions preserved. */
+    const knowledgeBaseProjects = this.options.req.body.knowledge_base_projects;
+    logger.warn('[RAG DEBUG] knowledge_base_projects from req.body:', knowledgeBaseProjects);
+    if (knowledgeBaseProjects && knowledgeBaseProjects.length > 0) {
       const lastUserMsg = orderedMessages[orderedMessages.length - 1];
       const userText = lastUserMsg?.text ?? lastUserMsg?.content;
-      const normalizedText =
-          typeof userText === 'string'
-              ? userText
-              : Array.isArray(userText)
-                  ? userText.find(p => p?.type === 'text')?.text
-                  : undefined;
+      const isFirstTurn =
+        !lastUserMsg?.parentMessageId || lastUserMsg.parentMessageId === Constants.NO_PARENT;
 
-      if (normalizedText && typeof normalizedText === 'string') {
-        const authToken = jwt.sign(
-            { id: this.options.req.user?.id },
-            process.env.JWT_SECRET,
-            { expiresIn: '60s' },
-        );
+      if (isFirstTurn && userText && typeof userText === 'string') {
+        const normalizedText = userText.trim();
+        if (normalizedText) {
+          const authToken = jwt.sign({ id: this.options.req.user?.id }, process.env.JWT_SECRET, {
+            expiresIn: '60s',
+          });
 
-        await Promise.all(
+          await Promise.all(
             allAgents.map(async ({ agent }) => {
               const basePrompt = agent.instructions || '';
               try {
-                agent.instructions = await enrichSystemPrompt(basePrompt, normalizedText, authToken);
+                agent.instructions = await enrichSystemPrompt(
+                  basePrompt,
+                  normalizedText,
+                  authToken,
+                  knowledgeBaseProjects,
+                );
               } catch (err) {
                 logger.warn('[RAG] Enrichment failed for agent', {
                   agentId: agent.id,
@@ -464,10 +468,10 @@ class AgentClient extends BaseClient {
                 });
               }
             }),
-        );
+          );
+        }
       }
     }
-
 
     const sharedRunAttachmentIds = new Set();
     if (this.options.attachments) {

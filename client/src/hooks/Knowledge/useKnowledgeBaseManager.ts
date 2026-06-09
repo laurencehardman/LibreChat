@@ -1,8 +1,6 @@
 // client/src/hooks/Knowledge/useKnowledgeBaseManager.ts
 
-import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useToastContext } from '@librechat/client';
+import { useCallback, useState, useEffect } from 'react';
 import { LocalStorageKeys, Permissions, PermissionTypes } from 'librechat-data-provider';
 import { useLocalize, useHasAccess } from '~/hooks';
 import { useGetKnowledgeBaseProjects } from '~/data-provider';
@@ -16,20 +14,18 @@ export interface KnowledgeBaseProject {
 export interface KnowledgeBaseManager {
     isPinned: boolean;
     setIsPinned: (v: boolean) => void;
-    selectedProjects: string[];
+    selectedProject: string | null;
     selectableProjects: KnowledgeBaseProject[];
-    toggleProject: (name: string) => void;
+    selectProject: (name: string) => void;
     placeholderText: string;
     isLoading: boolean;
 }
 
 export function useKnowledgeBaseManager({
-                                            conversationId,
-                                            storageContextKey,
-                                        }: { conversationId?: string | null; storageContextKey?: string } = {}): KnowledgeBaseManager {
+    conversationId,
+    storageContextKey,
+}: { conversationId?: string | null; storageContextKey?: string } = {}): KnowledgeBaseManager {
     const localize = useLocalize();
-    const { showToast } = useToastContext();
-    const queryClient = useQueryClient();
 
     const canUse = useHasAccess({
         permissionType: PermissionTypes.FILE_SEARCH,
@@ -60,71 +56,39 @@ export function useKnowledgeBaseManager({
     );
 
     /* ------------------------------------------------------------------ */
-    /*  Selected projects state + localStorage persistence                 */
+    /*  Selected project state + localStorage persistence                  */
     /* ------------------------------------------------------------------ */
     const storageKey = `${LocalStorageKeys.LAST_KNOWLEDGE_BASE_}${conversationId ?? 'new'}`;
 
-    const [selectedProjects, setSelectedProjects] = useState<string[]>(() => {
+    const [selectedProject, setSelectedProject] = useState<string | null>(() => {
         try {
             const raw = localStorage.getItem(storageKey);
             if (raw) {
                 const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) {
+                // Support legacy array format: take first item
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed[0];
+                }
+                if (typeof parsed === 'string' && parsed.length > 0) {
                     return parsed;
                 }
             }
         } catch {
             // ignore
         }
-        // Default: all projects selected
-        return projects.map((p) => p.name);
+        return null;
     });
-
-    const prevProjectsRef = useRef(projects);
-
-    // When projects load for the first time, select all if nothing is stored
-    useEffect(() => {
-        if (
-            projects.length > 0 &&
-            prevProjectsRef.current.length === 0 &&
-            selectedProjects.length === 0
-        ) {
-            setSelectedProjects(projects.map((p) => p.name));
-        }
-        prevProjectsRef.current = projects;
-    }, [projects, selectedProjects.length]);
 
     // Persist to localStorage whenever selection changes
     useEffect(() => {
-        localStorage.setItem(storageKey, JSON.stringify(selectedProjects));
-    }, [selectedProjects, storageKey]);
+        localStorage.setItem(storageKey, JSON.stringify(selectedProject));
+    }, [selectedProject, storageKey]);
 
     /* ------------------------------------------------------------------ */
-    /*  Toggle                                                             */
+    /*  Select (single-project, radio-style)                               */
     /* ------------------------------------------------------------------ */
-    // const toggleProject = useCallback((name: string) => {
-    //     setSelectedProjects((prev) => {
-    //         if (prev.includes(name)) {
-    //             const next = prev.filter((n) => n !== name);
-    //             if (next.length === 0) {
-    //                 showToast({
-    //                     message: 'At least one project must be selected for Knowledge Base search to work.',
-    //                     status: 'warning',
-    //                 });
-    //                 return prev;
-    //             }
-    //             return next;
-    //         }
-    //         return [...prev, name];
-    //     });
-    // }, [showToast]);
-    const toggleProject = useCallback((name: string) => {
-        setSelectedProjects((prev) => {
-            if (prev.includes(name)) {
-                return prev.filter((n) => n !== name);
-            }
-            return [...prev, name];
-        });
+    const selectProject = useCallback((name: string) => {
+        setSelectedProject((prev) => (prev === name ? null : name));
     }, []);
 
     /* ------------------------------------------------------------------ */
@@ -135,9 +99,9 @@ export function useKnowledgeBaseManager({
     return {
         isPinned,
         setIsPinned,
-        selectedProjects,
+        selectedProject,
         selectableProjects: projects,
-        toggleProject,
+        selectProject,
         placeholderText,
         isLoading,
     };

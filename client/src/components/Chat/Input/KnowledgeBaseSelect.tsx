@@ -1,16 +1,15 @@
 // client/src/components/Chat/Input/KnowledgeBaseSelect.tsx
 
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import { TooltipAnchor, VectorIcon } from '@librechat/client';
-import { useHasAccess, useLocalize } from '~/hooks';
+import { useHasAccess } from '~/hooks';
 import { useBadgeRowContext } from '~/Providers';
 import { cn } from '~/utils';
 
 function KnowledgeBaseSelectContent() {
-    const localize = useLocalize();
     const context = useBadgeRowContext();
     const manager = context?.knowledgeBaseManager;
 
@@ -22,23 +21,16 @@ function KnowledgeBaseSelectContent() {
     }
 
     const {
-        isPinned,
-        selectedProjects,
+        selectedProject,
         selectableProjects,
-        toggleProject,
+        selectProject,
         placeholderText,
     } = manager;
 
-    if (!isPinned && selectedProjects?.length === 0) {
-        return null;
-    }
-
-    const count = selectedProjects?.length ?? 0;
-    const total = selectableProjects?.length ?? 0;
-    const displayText =
-        count === total || count === 0
-            ? placeholderText
-            : `${placeholderText} (${count}/${total})`;
+    const selectedDisplayName =
+        selectableProjects.find((p) => p.name === selectedProject)?.displayName ??
+        selectedProject;
+    const displayText = selectedDisplayName ?? placeholderText;
 
     return (
         <Ariakit.MenuProvider store={menuStore}>
@@ -60,8 +52,8 @@ function KnowledgeBaseSelectContent() {
             >
                 <VectorIcon className="size-3.5 text-green-600 dark:text-green-400" />
                 <span className="hidden truncate text-text-primary md:block">
-          {count === 0 ? placeholderText : displayText}
-        </span>
+                    {displayText}
+                </span>
                 <ChevronDown
                     className={cn(
                         'hidden h-3 w-3 text-text-secondary transition-transform md:block',
@@ -86,14 +78,14 @@ function KnowledgeBaseSelectContent() {
             >
                 <div className="flex max-h-[320px] flex-col gap-1 overflow-y-auto">
                     {selectableProjects.map((project) => {
-                        const isSelected = selectedProjects?.includes(project.name) ?? false;
+                        const isSelected = selectedProject === project.name;
                         return (
                             <Ariakit.MenuItem
                                 key={project.name}
                                 hideOnClick={false}
                                 onClick={(e: React.MouseEvent) => {
                                     e.stopPropagation();
-                                    toggleProject(project.name);
+                                    selectProject(project.name);
                                 }}
                                 className={cn(
                                     'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
@@ -103,22 +95,24 @@ function KnowledgeBaseSelectContent() {
                             >
                                 <div
                                     className={cn(
-                                        'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border',
+                                        'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border',
                                         isSelected
-                                            ? 'border-green-500 bg-green-500 text-white'
+                                            ? 'border-green-500 bg-green-500'
                                             : 'border-border-medium bg-transparent',
                                     )}
                                 >
-                                    {isSelected && <Check className="h-3.5 w-3.5" />}
+                                    {isSelected && (
+                                        <div className="h-2 w-2 rounded-full bg-white" />
+                                    )}
                                 </div>
                                 <div className="flex min-w-0 flex-col">
-                  <span className="truncate font-medium">
-                    {project.displayName || project.name}
-                  </span>
+                                    <span className="truncate font-medium">
+                                        {project.displayName || project.name}
+                                    </span>
                                     {project.description && (
                                         <span className="truncate text-xs text-text-secondary">
-                      {project.description}
-                    </span>
+                                            {project.description}
+                                        </span>
                                     )}
                                 </div>
                             </Ariakit.MenuItem>
@@ -133,6 +127,7 @@ function KnowledgeBaseSelectContent() {
 function KnowledgeBaseSelect() {
     const context = useBadgeRowContext();
     const { selectableProjects } = context?.knowledgeBaseManager ?? {};
+
     const canUse = useHasAccess({
         permissionType: PermissionTypes.FILE_SEARCH,
         permission: Permissions.USE,

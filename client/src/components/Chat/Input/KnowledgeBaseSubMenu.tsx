@@ -2,7 +2,7 @@
 
 import React from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronRight, Check } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { PinIcon, VectorIcon } from '@librechat/client';
 import { useBadgeRowContext } from '~/Providers';
 import { useLocalize } from '~/hooks';
@@ -37,9 +37,9 @@ const KnowledgeBaseSubMenu = React.forwardRef<HTMLDivElement, KnowledgeBaseSubMe
         const {
             isPinned,
             setIsPinned,
-            selectedProjects,
+            selectedProject,
             selectableProjects,
-            toggleProject,
+            selectProject,
             placeholderText,
         } = knowledgeBaseManager;
 
@@ -101,8 +101,8 @@ const KnowledgeBaseSubMenu = React.forwardRef<HTMLDivElement, KnowledgeBaseSubMe
                                 <KnowledgeBaseProjectMenuItem
                                     key={project.name}
                                     project={project}
-                                    isSelected={selectedProjects?.includes(project.name) ?? false}
-                                    onToggle={() => toggleProject(project.name)}
+                                    isSelected={selectedProject === project.name}
+                                    onToggle={() => selectProject(project.name)}
                                 />
                             ))}
                         </div>
@@ -116,14 +116,14 @@ const KnowledgeBaseSubMenu = React.forwardRef<HTMLDivElement, KnowledgeBaseSubMe
 KnowledgeBaseSubMenu.displayName = 'KnowledgeBaseSubMenu';
 
 /* ------------------------------------------------------------------ */
-/*  Inline item — you can extract this to its own file if preferred   */
+/*  Inline item                                                        */
 /* ------------------------------------------------------------------ */
 
 function KnowledgeBaseProjectMenuItem({
-                                          project,
-                                          isSelected,
-                                          onToggle,
-                                      }: {
+    project,
+    isSelected,
+    onToggle,
+}: {
     project: KnowledgeBaseProject;
     isSelected: boolean;
     onToggle: () => void;
@@ -143,22 +143,22 @@ function KnowledgeBaseProjectMenuItem({
         >
             <div
                 className={cn(
-                    'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border',
+                    'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border',
                     isSelected
-                        ? 'border-green-500 bg-green-500 text-white'
+                        ? 'border-green-500 bg-green-500'
                         : 'border-border-medium bg-transparent',
                 )}
             >
-                {isSelected && <Check className="h-3.5 w-3.5" />}
+                {isSelected && <div className="h-2 w-2 rounded-full bg-white" />}
             </div>
             <div className="flex min-w-0 flex-col">
-        <span className="truncate font-medium">
-          {project.displayName || project.name}
-        </span>
+                <span className="truncate font-medium">
+                    {project.displayName || project.name}
+                </span>
                 {project.description && (
                     <span className="truncate text-xs text-text-secondary">
-            {project.description}
-          </span>
+                        {project.description}
+                    </span>
                 )}
             </div>
         </Ariakit.MenuItem>

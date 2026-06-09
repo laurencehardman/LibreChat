@@ -255,17 +255,17 @@ export default function BadgeRowProvider({
   });
 
   const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
-  // Sync: empty project selection → disable tool; non-empty → enable
+  // Sync: no project selected → disable tool; project selected → enable
   useEffect(() => {
-    const hasProjects = (knowledgeBaseManager?.selectedProjects?.length ?? 0) > 0;
+    const hasProject = knowledgeBaseManager?.selectedProject != null;
     const currentlyEnabled = knowledgeBase?.toggleState === true;
 
-    if (hasProjects && !currentlyEnabled) {
+    if (hasProject && !currentlyEnabled) {
       knowledgeBase?.debouncedChange({ value: true });
-    } else if (!hasProjects && currentlyEnabled) {
+    } else if (!hasProject && currentlyEnabled) {
       knowledgeBase?.debouncedChange({ value: false });
     }
-  }, [knowledgeBaseManager?.selectedProjects]);
+  }, [knowledgeBaseManager?.selectedProject]);
 
   /** FileSearch hook */
   const fileSearch = useToolToggle({

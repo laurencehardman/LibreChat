@@ -31,6 +31,7 @@ function KnowledgeBaseSelectContent() {
         selectableProjects.find((p) => p.name === selectedProject)?.displayName ??
         selectedProject;
     const displayText = selectedDisplayName ?? placeholderText;
+    const hasProject = selectedProject != null;
 
     return (
         <Ariakit.MenuProvider store={menuStore}>
@@ -41,16 +42,16 @@ function KnowledgeBaseSelectContent() {
                     <Ariakit.MenuButton
                         className={cn(
                             'group relative inline-flex items-center justify-center gap-1.5',
-                            'border border-green-600/40 bg-green-500/10 text-sm font-medium transition-all',
+                            hasProject ? 'border border-green-600/40 bg-green-500/10 text-sm font-medium transition-all' : 'border border-border-medium bg-transparent text-sm font-medium transition-all',
                             'h-9 min-w-9 rounded-full px-2.5 shadow-sm',
                             'hover:bg-green-700/10 hover:shadow-md active:shadow-inner',
                             'md:w-fit md:justify-start md:px-3',
-                            isOpen && 'bg-green-700/10',
+                            isOpen && (hasProject ? 'bg-green-700/10' : 'bg-surface-hover'),
                         )}
                     />
                 }
             >
-                <VectorIcon className="size-3.5 text-green-600 dark:text-green-400" />
+                <VectorIcon className={cn('size-3.5', hasProject ? 'text-green-600 dark:text-green-400' : 'text-text-secondary')} />
                 <span className="hidden truncate text-text-primary md:block">
                     {displayText}
                 </span>

@@ -379,14 +379,14 @@ export const knowledgeBaseSchema: ExtendedJsonSchema = {
 
 let knowledgeBaseProjectsInitialized = false;
 
-export function setKnowledgeBaseProjects(projects: string[]) {
+export function setKnowledgeBaseProjects(projects: string[]) : void {
   if (projects.length > 0) {
     knowledgeBaseSchema.properties.project_name.enum = projects;
     knowledgeBaseProjectsInitialized = true;
   }
 }
 
-export function isKnowledgeBaseProjectsInitialized() {
+export function isKnowledgeBaseProjectsInitialized(): boolean {
   return knowledgeBaseProjectsInitialized;
 }
 

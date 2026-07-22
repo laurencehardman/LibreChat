@@ -104,6 +104,7 @@ export function getOpenAIConfig(
     streaming = true,
     modelOptions = {},
     reverseProxyUrl: baseURL,
+    thinkingEffortConfig,
   } = options;
   const shouldProtectUserBaseURL = options.baseURLIsUserProvided === true && !!baseURL;
   const ssrfAgents = shouldProtectUserBaseURL
@@ -192,6 +193,7 @@ export function getOpenAIConfig(
       defaultParams,
       modelOptions,
       useOpenRouter,
+      thinkingEffortConfig,
       reasoningFormat: getReasoningFormat({
         customFormat: options.customParams?.reasoningFormat,
         isVercel: Boolean(isVercel),

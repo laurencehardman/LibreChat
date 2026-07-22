@@ -185,6 +185,7 @@ export async function initializeOpenAI({
   const finalClientOptions: OpenAIConfigOptions = {
     ...clientOptions,
     modelOptions,
+    thinkingEffortConfig: req.config?.config?.thinkingEffort,
   };
 
   const options = getOpenAIConfig(apiKey, finalClientOptions, endpoint);

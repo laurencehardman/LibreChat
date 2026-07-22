@@ -1,13 +1,14 @@
 import {
   EModelEndpoint,
   ReasoningEffort,
+  ThinkingEffort,
   ReasoningParameterFormat,
   removeNullishValues,
   supportsAdaptiveThinking,
 } from 'librechat-data-provider';
 import type { BindToolsInput } from '@librechat/agents/langchain/language_models/chat_models';
 import type { AzureOpenAIInput } from '@librechat/agents/langchain/openai';
-import type { SettingDefinition } from 'librechat-data-provider';
+import type { SettingDefinition, ThinkingEffortConfig } from 'librechat-data-provider';
 import type { OpenAI } from 'openai';
 import type * as t from '~/types';
 import { sanitizeModelName, constructAzureURL } from '~/utils/azure';
@@ -508,6 +509,7 @@ export function getOpenAILLMConfig({
   dropParams,
   defaultParams,
   useOpenRouter,
+  thinkingEffortConfig,
   reasoningFormat = ReasoningParameterFormat.reasoningEffort,
   modelOptions: _modelOptions,
 }: {
@@ -520,6 +522,7 @@ export function getOpenAILLMConfig({
   dropParams?: string[];
   defaultParams?: Record<string, unknown>;
   useOpenRouter?: boolean;
+  thinkingEffortConfig?: ThinkingEffortConfig;
   reasoningFormat?: ReasoningParameterFormat;
   azure?: false | t.AzureOptions;
 }): Pick<t.LLMConfigResult, 'llmConfig' | 'tools'> & {
@@ -542,9 +545,10 @@ export function getOpenAILLMConfig({
     promptCacheTtl,
     frequency_penalty,
     presence_penalty,
+    thinkingEffort,
     ...modelOptions
   } = cleanedModelOptions as Partial<
-    t.OpenAIParameters & { promptCache?: boolean; promptCacheTtl?: '5m' | '1h' }
+    t.OpenAIParameters & { promptCache?: boolean; promptCacheTtl?: '5m' | '1h'; thinkingEffort?: string }
   >;
 
   const llmConfig = Object.assign(
@@ -879,6 +883,16 @@ export function getOpenAILLMConfig({
     modelKwargs[paramName] = llmConfig.maxTokens;
     delete llmConfig.maxTokens;
     hasModelKwargs = true;
+  }
+
+  if (
+    thinkingEffort === ThinkingEffort.low ||
+    thinkingEffort === ThinkingEffort.high
+  ) {
+    if (thinkingEffortConfig?.[thinkingEffort]) {
+      Object.assign(modelKwargs, thinkingEffortConfig[thinkingEffort]);
+      hasModelKwargs = true;
+    }
   }
 
   if (hasModelKwargs && Object.keys(modelKwargs).length > 0) {

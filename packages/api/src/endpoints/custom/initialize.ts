@@ -336,6 +336,7 @@ export async function initializeCustom({
     const finalClientOptions = {
       modelOptions,
       ...clientOptions,
+      thinkingEffortConfig: appConfig?.config?.thinkingEffort,
     };
     options = getOpenAIConfig(apiKey, finalClientOptions, endpoint);
     if (options != null) {

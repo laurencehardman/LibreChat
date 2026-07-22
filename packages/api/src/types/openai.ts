@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { openAISchema } from 'librechat-data-provider';
+import { openAISchema, ThinkingEffortConfig } from 'librechat-data-provider';
 import type { BindToolsInput } from '@librechat/agents/langchain/language_models/chat_models';
 import type { OpenAIClientOptions, Providers } from '@librechat/agents';
 import type { TConfig } from 'librechat-data-provider';
@@ -26,6 +26,7 @@ export interface OpenAIConfigOptions {
   addParams?: Record<string, unknown>;
   dropParams?: string[];
   customParams?: Partial<TConfig['customParams']>;
+  thinkingEffortConfig?: ThinkingEffortConfig;
 }
 
 export type OpenAIConfiguration = OpenAIClientOptions['configuration'];

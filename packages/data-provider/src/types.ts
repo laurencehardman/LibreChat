@@ -44,6 +44,7 @@ export type TEndpointOption = Pick<
   | 'imageDetail'
   | 'reasoning_effort'
   | 'verbosity'
+  | 'thinkingEffort'
   | 'instructions'
   | 'additional_instructions'
   | 'append_current_datetime'

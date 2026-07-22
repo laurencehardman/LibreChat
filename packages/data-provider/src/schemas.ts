@@ -267,6 +267,12 @@ export enum Verbosity {
   high = 'high',
 }
 
+export enum ThinkingEffort {
+  auto = 'auto',
+  low = 'low',
+  high = 'high',
+}
+
 export enum ThinkingLevel {
   unset = '',
   minimal = 'minimal',
@@ -310,6 +316,7 @@ export const eAnthropicEffortSchema = z.nativeEnum(AnthropicEffort);
 export const eThinkingDisplaySchema = z.nativeEnum(ThinkingDisplay);
 export const eReasoningSummarySchema = z.nativeEnum(ReasoningSummary);
 export const eVerbositySchema = z.nativeEnum(Verbosity);
+export const eThinkingEffortSchema = z.nativeEnum(ThinkingEffort);
 export const eThinkingLevelSchema = z.nativeEnum(ThinkingLevel);
 export const eReasoningModeSchema = z.nativeEnum(ReasoningMode);
 export const eReasoningContextSchema = z.nativeEnum(ReasoningContext);
@@ -996,6 +1003,8 @@ export const tConversationSchema = z.object({
   reasoning_context: eReasoningContextSchema.optional().nullable(),
   /* OpenAI: Verbosity control */
   verbosity: eVerbositySchema.optional().nullable(),
+  /* Thinking effort budget control */
+  thinkingEffort: eThinkingEffortSchema.optional(),
   /* OpenAI: use Responses API */
   useResponsesApi: z.boolean().optional(),
   /* Anthropic: Effort control */
@@ -1116,6 +1125,8 @@ export const tQueryParamsSchema = tConversationSchema
     reasoning_context: true,
     /** @endpoints openAI, custom, azureOpenAI */
     verbosity: true,
+    /** @endpoints openAI, custom, azureOpenAI */
+    thinkingEffort: true,
     /** @endpoints openAI, custom, azureOpenAI */
     useResponsesApi: true,
     /** @endpoints openAI, anthropic, google */
@@ -1432,6 +1443,7 @@ export const openAIBaseSchema = tConversationSchema.pick({
   reasoning_mode: true,
   reasoning_context: true,
   verbosity: true,
+  thinkingEffort: true,
   useResponsesApi: true,
   web_search: true,
   disableStreaming: true,

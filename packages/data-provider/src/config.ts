@@ -1860,6 +1860,24 @@ export const langfuseConfigSchema = z.object({
 
 export type LangfuseConfig = z.infer<typeof langfuseConfigSchema>;
 
+export const reasoningBudgetSchema = z.object({
+  reasoning_budget_tokens: z.number().optional(),
+  reasoning_budget_intro_message: z.string().optional(),
+  reasoning_budget_soft_ratio: z.number().optional(),
+  reasoning_budget_soft_message: z.string().optional(),
+  reasoning_budget_message: z.string().optional(),
+  reasoning_budget_grace_tokens: z.number().optional(),
+});
+
+export const thinkingEffortSchema = z
+  .object({
+    low: reasoningBudgetSchema.optional(),
+    high: reasoningBudgetSchema.optional(),
+  })
+  .optional();
+
+export type ThinkingEffortConfig = z.infer<typeof thinkingEffortSchema>;
+
 export const configSchema = z.object({
   version: z.string(),
   cache: z.boolean().default(true),
@@ -1929,6 +1947,7 @@ export const configSchema = z.object({
       message: 'At least one `endpoints` field must be provided.',
     })
     .optional(),
+  thinkingEffort: thinkingEffortSchema,
 });
 
 /**

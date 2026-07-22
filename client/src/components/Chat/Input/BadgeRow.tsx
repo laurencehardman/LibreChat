@@ -15,6 +15,7 @@ import type { BadgeItem } from '~/common';
 import CodeInterpreter from './CodeInterpreter';
 import { BadgeRowProvider } from '~/Providers';
 import ToolsDropdown from './ToolsDropdown';
+import ThinkingEffortDropdown from './ThinkingEffortDropdown';
 import { useChatBadges } from '~/hooks';
 import ToolDialogs from './ToolDialogs';
 import FileSearch from './FileSearch';
@@ -332,6 +333,7 @@ function BadgeRow({
     >
       <div ref={containerRef} className="relative flex flex-wrap items-center gap-2">
         {showEphemeralBadges === true && <ToolsDropdown />}
+        {showEphemeralBadges === true && <ThinkingEffortDropdown />}
         {tempBadges.map((badge, index) => (
           <React.Fragment key={badge.id}>
             {dragState.draggedBadge && dragState.insertIndex === index && ghostBadge && (

@@ -67,6 +67,7 @@ const {
   getMCPServerTools,
   getCachedTools,
 } = require('~/server/services/Config');
+const { getToolInstruction } = require('./Tools/toolInstructions');
 const { processFileURL, uploadImageBuffer } = require('~/server/services/Files/process');
 const { primeFiles: primeSearchFiles } = require('~/app/clients/tools/util/fileSearch');
 const { primeFiles: primeCodeFiles } = require('~/server/services/Files/Code/process');
@@ -593,7 +594,7 @@ async function loadToolDefinitionsWrapper({
       return checkCapability(AgentCapabilities.file_search);
     }
     if (tool === Tools.knowledge_base) {
-      return true;                                 // always available
+      return checkCapability(AgentCapabilities.knowledge_base);
     }
     if (tool === Tools.execute_code) {
       return checkCapability(AgentCapabilities.execute_code);
@@ -1078,7 +1079,7 @@ async function loadToolDefinitionsWrapper({
   const hasExecuteCode = filteredTools.includes(Tools.execute_code);
 
   if (hasWebSearch) {
-    toolContextMap[Tools.web_search] = buildWebSearchContext();
+    toolContextMap[Tools.web_search] = await getToolInstruction(Tools.web_search) ?? buildWebSearchContext();
     dynamicToolContextMap[Tools.web_search] = buildWebSearchDynamicContext(
       req.conversationCreatedAt,
     );
@@ -1088,7 +1089,8 @@ async function loadToolDefinitionsWrapper({
 
   if (hasKnowledgeBase) {
     toolContextMap[Tools.knowledge_base] =
-        '# `' + Tools.knowledge_base + '`:\n' +
+      await getToolInstruction(Tools.knowledge_base) ??
+      '# `' + Tools.knowledge_base + '`:\n' +
         'Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.\n' +
         '\n' +
         '**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**\n' +
@@ -1274,7 +1276,7 @@ async function loadAgentTools({
       includesWebSearch = checkCapability(AgentCapabilities.web_search);
       return includesWebSearch;
     } else if (tool === Tools.knowledge_base) {
-      return true;
+      return checkCapability(AgentCapabilities.knowledge_base);
     } else if (tool === Tools.memory) {
       return checkCapability(AgentCapabilities.memory);
     } else if (tool === ASK_USER_QUESTION_TOOL_NAME) {

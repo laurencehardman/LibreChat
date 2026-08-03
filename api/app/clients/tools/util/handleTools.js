@@ -28,6 +28,7 @@ const {
   PermissionTypes,
   AgentCapabilities,
 } = require('librechat-data-provider');
+const { getToolInstruction } = require('~/server/services/Tools/toolInstructions');
 const {
   availableTools,
   manifestToolMap,
@@ -403,7 +404,7 @@ const loadTools = async ({
       });
       const { onSearchResults, onGetHighlights } = options?.[Tools.web_search] ?? {};
       requestedTools[tool] = async () => {
-        toolContextMap[tool] = buildWebSearchContext();
+        toolContextMap[tool] = await getToolInstruction(Tools.web_search) ?? buildWebSearchContext();
         dynamicToolContextMap[tool] = buildWebSearchDynamicContext(
           options.req?.conversationCreatedAt,
         );

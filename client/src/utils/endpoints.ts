@@ -342,7 +342,7 @@ export function applyModelSpecEphemeralAgent({
     web_search: modelSpec.webSearch ?? false,
     file_search: modelSpec.fileSearch ?? false,
     execute_code: modelSpec.executeCode ?? false,
-    knowledge_base: modelSpec.knowledgeBase ?? true,
+    knowledge_base: modelSpec.knowledgeBase ?? false,
     memory: modelSpec.memory ?? false,
     artifacts: modelSpec.artifacts === true ? 'default' : modelSpec.artifacts || '',
   };

@@ -594,7 +594,7 @@ async function loadToolDefinitionsWrapper({
       return checkCapability(AgentCapabilities.file_search);
     }
     if (tool === Tools.knowledge_base) {
-      return checkCapability(AgentCapabilities.knowledge_base);
+      return true;                                 // gated at ephemeralAgent/modelSpec level
     }
     if (tool === Tools.execute_code) {
       return checkCapability(AgentCapabilities.execute_code);
@@ -1276,7 +1276,7 @@ async function loadAgentTools({
       includesWebSearch = checkCapability(AgentCapabilities.web_search);
       return includesWebSearch;
     } else if (tool === Tools.knowledge_base) {
-      return checkCapability(AgentCapabilities.knowledge_base);
+      return true;                                 // gated at ephemeralAgent/modelSpec level
     } else if (tool === Tools.memory) {
       return checkCapability(AgentCapabilities.memory);
     } else if (tool === ASK_USER_QUESTION_TOOL_NAME) {

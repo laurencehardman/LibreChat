@@ -1088,7 +1088,7 @@ async function loadToolDefinitionsWrapper({
   const hasKnowledgeBase = filteredTools.includes(Tools.knowledge_base);
 
   if (hasKnowledgeBase) {
-    toolContextMap[Tools.knowledge_base] =
+    let instruction =
       await getToolInstruction(Tools.knowledge_base) ??
       '# `' + Tools.knowledge_base + '`:\n' +
         'Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.\n' +
@@ -1103,6 +1103,20 @@ async function loadToolDefinitionsWrapper({
         '- If you haven\'t found enough after 3 queries, synthesise the best answer you can from what you have and note any gaps.\n' +
         '\n' +
         'The tool returns chunks, not whole files. Synthesise from the chunks you receive — do not expect to find a single canonical source document, and do not keep searching hoping for one.';
+
+    const knowledgeBaseProjects = req.body?.knowledge_base_projects;
+    if (knowledgeBaseProjects && knowledgeBaseProjects.length > 0) {
+      instruction +=
+        '\n\n**Selected knowledge base project' +
+        (knowledgeBaseProjects.length > 1 ? 's' : '') +
+        ':** ' +
+        knowledgeBaseProjects.map((p) => `"${p}"`).join(', ') +
+        '. Use ' +
+        (knowledgeBaseProjects.length > 1 ? 'these projects' : 'this project') +
+        ' for knowledge_base queries unless the user specifies otherwise.';
+    }
+
+    toolContextMap[Tools.knowledge_base] = instruction;
   }
 
   /**

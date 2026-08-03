@@ -25,6 +25,9 @@ export default function createPayload(submission: t.TSubmission) {
     endpointOption,
     knowledge_base_projects,
     manualSkills,
+    clientRequestId,
+    recoverySteerId,
+    expectedPredecessorCreatedAt,
   } = submission;
   const { conversationId } = s.tConvoUpdateSchema.parse(conversation);
   const { endpoint: _e, endpointType } = endpointOption as {
@@ -54,6 +57,9 @@ export default function createPayload(submission: t.TSubmission) {
     manualSkills: s.isAssistantsEndpoint(endpoint) ? undefined : manualSkills,
     knowledge_base_projects,
     timezone: getUserTimezone(),
+    clientRequestId,
+    recoverySteerId,
+    expectedPredecessorCreatedAt,
   };
 
   return { server, payload };

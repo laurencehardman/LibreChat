@@ -24,34 +24,36 @@ const fileSearchJsonSchema = {
  * @param {ServerRequest} options.req
  * @param {Agent['tool_resources']} options.tool_resources
  * @param {string} [options.agentId] - The agent ID for file access control
+ * @param {string} [options.agentResourceType] - Permission resource type for the authorized agent route
  * @returns {Promise<{
  *   files: Array<{ file_id: string; filename: string; fromAgent: boolean }>,
  *   toolContext: string
  * }>}
  */
 const primeFiles = async (options) => {
-    const { tool_resources, req, agentId } = options;
-    const file_ids = tool_resources?.[EToolResources.file_search]?.file_ids ?? [];
-    const agentResourceIds = new Set(file_ids);
-    const resourceFiles = tool_resources?.[EToolResources.file_search]?.files ?? [];
+  const { tool_resources, req, agentId, agentResourceType } = options;
+  const file_ids = tool_resources?.[EToolResources.file_search]?.file_ids ?? [];
+  const agentResourceIds = new Set(file_ids);
+  const resourceFiles = tool_resources?.[EToolResources.file_search]?.files ?? [];
 
-    // Get all files first
-    const allFiles = (await getFiles({ file_id: { $in: file_ids } }, null, { text: 0 })) ?? [];
+  // Get all files first
+  const allFiles = (await getFiles({ file_id: { $in: file_ids } }, null, { text: 0 })) ?? [];
 
-    // Filter by access if user and agent are provided
-    let dbFiles;
-    if (req?.user?.id && agentId) {
-        dbFiles = await filterFilesByAgentAccess({
-            files: allFiles,
-            userId: req.user.id,
-            role: req.user.role,
-            agentId,
-        });
-    } else {
-        dbFiles = allFiles;
-    }
+  // Filter by access if user and agent are provided
+  let dbFiles;
+  if (req?.user?.id && agentId) {
+    dbFiles = await filterFilesByAgentAccess({
+      files: allFiles,
+      userId: req.user.id,
+      role: req.user.role,
+      agentId,
+      resourceType: agentResourceType,
+    });
+  } else {
+    dbFiles = allFiles;
+  }
 
-    dbFiles = dbFiles.concat(resourceFiles);
+  dbFiles = dbFiles.concat(resourceFiles);
 
   let toolContext = `- Note: Semantic search is available through the ${Tools.file_search} tool but no files are currently loaded. Request the user to upload documents to search through.`;
 
@@ -74,9 +76,8 @@ const primeFiles = async (options) => {
     });
   }
 
-    return { files, toolContext };
+  return { files, toolContext };
 };
-
 
 /**
  *

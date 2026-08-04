@@ -393,13 +393,22 @@ function applyReasoningConfig({
     return false;
   }
 
-  if (isOpenAICompatibleEndpoint(endpoint)) {
+  if (isOpenAIEndpoint(endpoint)) {
     if (llmConfig.useResponsesApi === true) {
       llmConfig.reasoning = reasoning;
       return false;
     }
     if (reasoningEffort) {
       llmConfig.reasoning_effort = reasoningEffort;
+    }
+    return false;
+  }
+
+  if (endpoint === EModelEndpoint.custom) {
+    if (reasoningEffort) {
+      llmConfig.reasoning_effort = reasoningEffort;
+      modelKwargs.reasoning_effort = reasoningEffort;
+      return true;
     }
     return false;
   }

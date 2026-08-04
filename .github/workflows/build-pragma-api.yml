@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-push:
-    runs-on: [self-hosted, build]
+    runs-on: [self-hosted, linux, x64]
     steps:
       - uses: actions/checkout@v4
 

@@ -1,0 +1,36 @@
+name: build-pragma-api
+
+on:
+  push:
+    branches: [custom/pragma]
+
+jobs:
+  build-push:
+    runs-on: [self-hosted, build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          # buildx runs its own BuildKit container which does NOT read
+          # the daemon's insecure-registries — needs its own config.
+          # Delete this block if your registry has proper TLS.
+          config-inline: |
+            [registry."registry.pragmasolutions.co.za:5000"]
+              http = true
+              insecure = true
+
+      # Delete if the registry has no auth
+      - uses: docker/login-action@v3
+        with:
+          registry: registry.pragmasolutions.co.za:5000
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: registry.pragmasolutions.co.za:5000/pragma/pragma_api:latest
+          cache-from: type=registry,ref=registry.pragmasolutions.co.za:5000/pragma/pragma_api:buildcache
+          cache-to: type=registry,ref=registry.pragmasolutions.co.za:5000/pragma/pragma_api:buildcache,mode=max

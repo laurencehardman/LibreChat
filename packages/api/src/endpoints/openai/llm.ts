@@ -121,6 +121,9 @@ function isOpenAIEndpoint(endpoint?: EModelEndpoint | string | null): boolean {
   return endpoint === EModelEndpoint.openAI || endpoint === EModelEndpoint.azureOpenAI;
 }
 
+const isOpenAICompatibleEndpoint = (endpoint?: EModelEndpoint | string | null): boolean =>
+  isOpenAIEndpoint(endpoint) || endpoint === EModelEndpoint.custom;
+
 /**
  * GPT-5.6 models reject function tools combined with `reasoning_effort` in
  * `/v1/chat/completions` (400: "To use function tools, use /v1/responses or
@@ -390,7 +393,7 @@ function applyReasoningConfig({
     return false;
   }
 
-  if (isOpenAIEndpoint(endpoint)) {
+  if (isOpenAICompatibleEndpoint(endpoint)) {
     if (llmConfig.useResponsesApi === true) {
       llmConfig.reasoning = reasoning;
       return false;

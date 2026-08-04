@@ -5,6 +5,7 @@ import {
   EModelEndpoint,
   tModelSpecPresetSchema,
   eModelEndpointSchema,
+  eThinkingControlModeSchema,
   AuthType,
   authTypeSchema,
 } from './schemas';
@@ -81,6 +82,7 @@ export type TModelSpec = {
   mcpServers?: string[];
   skills?: boolean | string[];
   subagents?: AgentSubagentsConfig;
+  thinkingControlMode?: 'mindcontrol' | 'reasoning_effort';
 };
 
 export const modelSpecSubagentsSchema = z.object({
@@ -118,6 +120,7 @@ export const tModelSpecSchema = z.object({
   mcpServers: z.array(z.string()).optional(),
   skills: z.union([z.boolean(), z.array(z.string())]).optional(),
   subagents: modelSpecSubagentsSchema.optional(),
+  thinkingControlMode: eThinkingControlModeSchema.optional(),
 });
 
 export const specsConfigSchema = z.object({

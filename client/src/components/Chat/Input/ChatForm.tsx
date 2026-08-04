@@ -123,6 +123,7 @@ const ChatForm = memo(function ChatForm({
     [conversation?.spec, startupConfig],
   );
   const hideBadgeRow = modelSpec?.hideBadgeRow === true;
+  const thinkingControlMode = modelSpec?.thinkingControlMode;
   const conversationId = useMemo(
     () => conversation?.conversationId ?? Constants.NEW_CONVO,
     [conversation?.conversationId],
@@ -659,6 +660,7 @@ const ChatForm = memo(function ChatForm({
                   isSubmitting={isSubmitting}
                   conversationId={conversationId}
                   specName={conversation?.spec}
+                  thinkingControlMode={thinkingControlMode}
                   onChange={setBadges}
                   isInChat={
                     Array.isArray(conversation?.messages) && conversation.messages.length >= 1

@@ -273,6 +273,11 @@ export enum ThinkingEffort {
   high = 'high',
 }
 
+export enum ThinkingControlMode {
+  mindcontrol = 'mindcontrol',
+  reasoning_effort = 'reasoning_effort',
+}
+
 export enum ThinkingLevel {
   unset = '',
   minimal = 'minimal',
@@ -317,6 +322,7 @@ export const eThinkingDisplaySchema = z.nativeEnum(ThinkingDisplay);
 export const eReasoningSummarySchema = z.nativeEnum(ReasoningSummary);
 export const eVerbositySchema = z.nativeEnum(Verbosity);
 export const eThinkingEffortSchema = z.nativeEnum(ThinkingEffort);
+export const eThinkingControlModeSchema = z.nativeEnum(ThinkingControlMode);
 export const eThinkingLevelSchema = z.nativeEnum(ThinkingLevel);
 export const eReasoningModeSchema = z.nativeEnum(ReasoningMode);
 export const eReasoningContextSchema = z.nativeEnum(ReasoningContext);

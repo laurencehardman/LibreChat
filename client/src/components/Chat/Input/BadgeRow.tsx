@@ -33,6 +33,7 @@ interface BadgeRowProps {
   onToggle?: (badgeId: string, currentActive: boolean) => void;
   conversationId?: string | null;
   specName?: string | null;
+  thinkingControlMode?: 'mindcontrol' | 'reasoning_effort';
   isSubmitting?: boolean;
   isInChat: boolean;
 }
@@ -148,6 +149,7 @@ function BadgeRow({
   showEphemeralBadges,
   conversationId,
   specName,
+  thinkingControlMode,
   isSubmitting,
   onChange,
   onToggle,
@@ -333,7 +335,7 @@ function BadgeRow({
     >
       <div ref={containerRef} className="relative flex flex-wrap items-center gap-2">
         {showEphemeralBadges === true && <ToolsDropdown />}
-        {showEphemeralBadges === true && <ThinkingEffortDropdown />}
+        {showEphemeralBadges === true && <ThinkingEffortDropdown thinkingControlMode={thinkingControlMode} />}
         {tempBadges.map((badge, index) => (
           <React.Fragment key={badge.id}>
             {dragState.draggedBadge && dragState.insertIndex === index && ghostBadge && (

@@ -393,7 +393,10 @@ const loadTools = async ({
       continue;
     } else if (tool === Tools.knowledge_base) {
       requestedTools[tool] = async () => {
-        return createKnowledgeBaseTool({ userId: user });
+        return createKnowledgeBaseTool({
+          userId: user,
+          selectedProjects: options.req?.body?.knowledge_base_projects,
+        });
       };
       continue;
     } else if (tool === Tools.web_search) {
@@ -404,7 +407,8 @@ const loadTools = async ({
       });
       const { onSearchResults, onGetHighlights } = options?.[Tools.web_search] ?? {};
       requestedTools[tool] = async () => {
-        toolContextMap[tool] = await getToolInstruction(Tools.web_search) ?? buildWebSearchContext();
+        toolContextMap[tool] =
+          (await getToolInstruction(Tools.web_search)) ?? buildWebSearchContext();
         dynamicToolContextMap[tool] = buildWebSearchDynamicContext(
           options.req?.conversationCreatedAt,
         );

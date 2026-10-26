@@ -13,6 +13,8 @@ import { useGetStartupConfig } from '~/data-provider';
 import { ephemeralAgentByConvoId } from '~/store';
 import { useKnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
 
+import type { KnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
+
 interface BadgeRowContextType {
   conversationId?: string | null;
   storageContextKey?: string;
@@ -26,6 +28,7 @@ interface BadgeRowContextType {
   codeInterpreter: ReturnType<typeof useToolToggle>;
   searchApiKeyForm: ReturnType<typeof useSearchApiKeyForm>;
   mcpServerManager: ReturnType<typeof useMCPServerManager>;
+  knowledgeBaseManager: KnowledgeBaseManager;
 }
 
 const BadgeRowContext = createContext<BadgeRowContextType | undefined>(undefined);
@@ -255,17 +258,18 @@ export default function BadgeRowProvider({
   });
 
   const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
-  // Sync: no project selected → disable tool; project selected → enable
+  const selectedKnowledgeBaseProjects = knowledgeBaseManager.selectedProjects;
+  const hasSelectedProjects = selectedKnowledgeBaseProjects.length > 0;
+  // Sync: no projects selected → disable tool; projects selected → enable
   useEffect(() => {
-    const hasProject = knowledgeBaseManager?.selectedProject != null;
     const currentlyEnabled = knowledgeBase?.toggleState === true;
 
-    if (hasProject && !currentlyEnabled) {
+    if (hasSelectedProjects && !currentlyEnabled) {
       knowledgeBase?.debouncedChange({ value: true });
-    } else if (!hasProject && currentlyEnabled) {
+    } else if (!hasSelectedProjects && currentlyEnabled) {
       knowledgeBase?.debouncedChange({ value: false });
     }
-  }, [knowledgeBaseManager?.selectedProject]);
+  }, [hasSelectedProjects]);
 
   /** FileSearch hook */
   const fileSearch = useToolToggle({
@@ -275,7 +279,6 @@ export default function BadgeRowProvider({
     localStorageKey: LocalStorageKeys.LAST_FILE_SEARCH_TOGGLE_,
     isAuthenticated: true,
   });
-
 
   /** Artifacts hook - using a custom key since it's not a Tool but a capability */
   const artifacts = useToolToggle({
@@ -305,7 +308,6 @@ export default function BadgeRowProvider({
   });
 
   const mcpServerManager = useMCPServerManager({ conversationId, storageContextKey });
-  // const knowledgeBaseManager = useKnowledgeBaseManager({ conversationId, storageContextKey });
 
   const value: BadgeRowContextType = {
     skills,

@@ -9,6 +9,7 @@ interface AgentCapabilitiesResult {
   contextEnabled: boolean;
   fileSearchEnabled: boolean;
   webSearchEnabled: boolean;
+  knowledgeBaseEnabled: boolean;
   codeEnabled: boolean;
   skillsEnabled: boolean;
   memoryEnabled: boolean;
@@ -52,8 +53,8 @@ export default function useAgentCapabilities(
   );
 
   const knowledgeBaseEnabled = useMemo(
-      () => capabilities?.includes(AgentCapabilities.knowledge_base) ?? false,
-      [capabilities],
+    () => capabilities?.includes(AgentCapabilities.knowledge_base) ?? false,
+    [capabilities],
   );
 
   const webSearchEnabled = useMemo(

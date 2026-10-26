@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { logger } from '@librechat/data-schemas';
 import type { IUser } from '@librechat/data-schemas';
 import type { GraphTokenResolver } from '~/utils/graph';
@@ -9,6 +12,7 @@ import { ConnectionsRepository } from '~/mcp/ConnectionsRepository';
 import { MCPConnectionFactory } from '~/mcp/MCPConnectionFactory';
 import { isMCPDomainAllowed } from '~/auth/domain';
 import { MCPConnection } from '~/mcp/connection';
+import { clearServerInstructionCache } from '~/mcp/instructions';
 import { MCPManager } from '~/mcp/MCPManager';
 import * as graphUtils from '~/utils/graph';
 import { processMCPEnv } from '~/utils/env';
@@ -298,6 +302,32 @@ describe('MCPManager', () => {
       expect(result).toContain('Be careful with database operations');
       expect(result).not.toContain('files');
       expect(result).not.toContain('Only read/write files in allowed directories');
+    });
+
+    it('should prefer file overrides from MCP_INSTRUCTIONS_DIR over config serverInstructions', async () => {
+      const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'mcp-instructions-'));
+      await fs.promises.writeFile(path.join(dir, 'github.md'), 'File-based github instructions');
+      process.env.MCP_INSTRUCTIONS_DIR = dir;
+      clearServerInstructionCache();
+      (mockRegistryInstance.getAllServerConfigs as jest.Mock).mockResolvedValue({
+        github: {
+          type: 'sse',
+          url: 'https://api.github.com',
+          serverInstructions: 'Use GitHub API with care',
+        },
+      });
+
+      try {
+        const manager = await MCPManager.createInstance(newMCPServersConfig());
+        const result = await manager.formatInstructionsForContext(['github']);
+
+        expect(result).toContain('File-based github instructions');
+        expect(result).not.toContain('Use GitHub API with care');
+      } finally {
+        delete process.env.MCP_INSTRUCTIONS_DIR;
+        clearServerInstructionCache();
+        await fs.promises.rm(dir, { recursive: true, force: true });
+      }
     });
 
     it('should handle servers with null or undefined instructions', async () => {

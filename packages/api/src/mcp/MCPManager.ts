@@ -25,6 +25,7 @@ import { MCPServersRegistry } from './registry/MCPServersRegistry';
 import { UserConnectionManager } from './UserConnectionManager';
 import { ConnectionsRepository } from './ConnectionsRepository';
 import { MCPConnectionFactory } from './MCPConnectionFactory';
+import { getServerInstructionFile } from './instructions';
 import { preProcessGraphTokens } from '~/utils/graph';
 import { formatToolContent } from './parsers';
 import { MCPConnection } from './connection';
@@ -275,7 +276,9 @@ export class MCPManager extends UserConnectionManager {
   }
 
   /**
-   * Get instructions for MCP servers
+   * Get instructions for MCP servers.
+   * A file override at `config/mcp-instructions/<serverName>.md` takes precedence
+   * over the `serverInstructions` config value (see `getServerInstructionFile`).
    * @param serverNames Optional array of server names. If not provided or empty, returns all servers.
    * @returns Object mapping server names to their instructions
    */
@@ -283,16 +286,23 @@ export class MCPManager extends UserConnectionManager {
     serverNames?: string[],
     configServers?: Record<string, t.ParsedServerConfig>,
   ): Promise<Record<string, string>> {
-    const instructions: Record<string, string> = {};
     const configs = await MCPServersRegistry.getInstance().getAllServerConfigs(
       undefined,
       configServers,
     );
-    for (const [serverName, config] of Object.entries(configs)) {
-      if (config.serverInstructions != null) {
+    const entries = Object.entries(configs);
+    const fileInstructions = await Promise.all(
+      entries.map(([serverName]) => getServerInstructionFile(serverName)),
+    );
+    const instructions: Record<string, string> = {};
+    entries.forEach(([serverName, config], index) => {
+      const fileInstruction = fileInstructions[index];
+      if (fileInstruction != null) {
+        instructions[serverName] = fileInstruction;
+      } else if (config.serverInstructions != null) {
         instructions[serverName] = config.serverInstructions as string;
       }
-    }
+    });
     if (!serverNames) return instructions;
     return pick(instructions, serverNames);
   }

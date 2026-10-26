@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LocalStorageKeys, Permissions, PermissionTypes } from 'librechat-data-provider';
-import { useLocalize, useHasAccess } from '~/hooks';
 import { useGetKnowledgeBaseProjects } from '~/data-provider';
+import { useLocalize, useHasAccess } from '~/hooks';
 
 export interface KnowledgeBaseProject {
   name: string;

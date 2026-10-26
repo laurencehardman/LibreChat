@@ -2,8 +2,8 @@
 
 import React, { memo } from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronDown, Database } from 'lucide-react';
 import { TooltipAnchor } from '@librechat/client';
+import { ChevronDown, Database } from 'lucide-react';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
 import KnowledgeBaseMenuList from '~/components/Chat/Input/KnowledgeBaseMenuList';
 import { useHasAccess, useLocalize } from '~/hooks';

@@ -1,15 +1,14 @@
 // client/src/components/Chat/Input/KnowledgeBaseMenuList.tsx
 
 import React from 'react';
-import * as Ariakit from '@ariakit/react';
 import { Check } from 'lucide-react';
-import { useLocalize } from '~/hooks';
-import { cn } from '~/utils';
-
+import * as Ariakit from '@ariakit/react';
 import type {
   KnowledgeBaseManager,
   KnowledgeBaseProject,
 } from '~/hooks/Knowledge/useKnowledgeBaseManager';
+import { useLocalize } from '~/hooks';
+import { cn } from '~/utils';
 
 function CheckboxIndicator({ isSelected }: { isSelected: boolean }) {
   return (

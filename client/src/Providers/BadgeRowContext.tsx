@@ -2,18 +2,17 @@ import React, { createContext, useContext, useEffect, useMemo, useRef } from 're
 import { useSetRecoilState } from 'recoil';
 import { Tools, Constants, LocalStorageKeys, AgentCapabilities } from 'librechat-data-provider';
 import type { TAgentsEndpoint, TEphemeralAgent } from 'librechat-data-provider';
+import type { KnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
 import {
   useMCPServerManager,
   useSearchApiKeyForm,
   useGetAgentsConfig,
   useToolToggle,
 } from '~/hooks';
+import { useKnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
 import { getTimestampedValue } from '~/utils/timestamps';
 import { useGetStartupConfig } from '~/data-provider';
 import { ephemeralAgentByConvoId } from '~/store';
-import { useKnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
-
-import type { KnowledgeBaseManager } from '~/hooks/Knowledge/useKnowledgeBaseManager';
 
 interface BadgeRowContextType {
   conversationId?: string | null;
@@ -42,6 +41,7 @@ interface BadgeRowProviderProps {
   isSubmitting?: boolean;
   conversationId?: string | null;
   specName?: string | null;
+  observeToolAuthorization?: boolean;
 }
 
 export default function BadgeRowProvider({
@@ -49,6 +49,7 @@ export default function BadgeRowProvider({
   isSubmitting,
   conversationId,
   specName,
+  observeToolAuthorization = false,
 }: BadgeRowProviderProps) {
   const lastContextKeyRef = useRef<string>('');
   const hasInitializedRef = useRef(false);
@@ -261,15 +262,15 @@ export default function BadgeRowProvider({
   const selectedKnowledgeBaseProjects = knowledgeBaseManager.selectedProjects;
   const hasSelectedProjects = selectedKnowledgeBaseProjects.length > 0;
   // Sync: no projects selected → disable tool; projects selected → enable
+  const knowledgeBaseEnabled = knowledgeBase?.toggleState === true;
+  const changeKnowledgeBase = knowledgeBase?.debouncedChange;
   useEffect(() => {
-    const currentlyEnabled = knowledgeBase?.toggleState === true;
-
-    if (hasSelectedProjects && !currentlyEnabled) {
-      knowledgeBase?.debouncedChange({ value: true });
-    } else if (!hasSelectedProjects && currentlyEnabled) {
-      knowledgeBase?.debouncedChange({ value: false });
+    if (hasSelectedProjects && !knowledgeBaseEnabled) {
+      changeKnowledgeBase?.({ value: true });
+    } else if (!hasSelectedProjects && knowledgeBaseEnabled) {
+      changeKnowledgeBase?.({ value: false });
     }
-  }, [hasSelectedProjects]);
+  }, [hasSelectedProjects, knowledgeBaseEnabled, changeKnowledgeBase]);
 
   /** FileSearch hook */
   const fileSearch = useToolToggle({
@@ -307,23 +308,50 @@ export default function BadgeRowProvider({
     isAuthenticated: true,
   });
 
-  const mcpServerManager = useMCPServerManager({ conversationId, storageContextKey });
-
-  const value: BadgeRowContextType = {
-    skills,
-    memory,
-    webSearch,
-    artifacts,
-    fileSearch,
-    knowledgeBase,
-    knowledgeBaseManager,
-    agentsConfig,
+  const mcpServerManager = useMCPServerManager({
     conversationId,
     storageContextKey,
-    codeInterpreter,
-    searchApiKeyForm,
-    mcpServerManager,
-  };
+    specName,
+    ownsChatSelection: true,
+    observeToolAuthorization,
+  });
+
+  /* Memoized because this is an inline child of `ChatForm`, which re-renders on
+     every keystroke: a fresh value here invalidated every consumer's memo, and
+     the palette rebuilt its whole tool, skill and server catalog per character
+     typed. */
+  const value = useMemo<BadgeRowContextType>(
+    () => ({
+      skills,
+      memory,
+      webSearch,
+      artifacts,
+      fileSearch,
+      knowledgeBase,
+      knowledgeBaseManager,
+      agentsConfig,
+      conversationId,
+      storageContextKey,
+      codeInterpreter,
+      searchApiKeyForm,
+      mcpServerManager,
+    }),
+    [
+      skills,
+      memory,
+      webSearch,
+      artifacts,
+      fileSearch,
+      knowledgeBase,
+      knowledgeBaseManager,
+      agentsConfig,
+      conversationId,
+      storageContextKey,
+      codeInterpreter,
+      searchApiKeyForm,
+      mcpServerManager,
+    ],
+  );
 
   return <BadgeRowContext.Provider value={value}>{children}</BadgeRowContext.Provider>;
 }

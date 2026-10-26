@@ -86,7 +86,7 @@ The tool takes \`url\` (required), \`max_length\` (default 5000), \`start_index\
 Note: fetch is different from web search. Search is for finding unknown URLs; fetch is for reading a known URL. The "almost never" guidance above is about search. Use fetch freely when a URL is involved.`.trim();
 }
 
-/** Builds dynamic web search context scoped to the conversation anchor time. */
+/** Builds dynamic web search context scoped to the logical turn start time. */
 export function buildWebSearchDynamicContext(now?: string | number | Date): string {
   return `# \`${Tools.web_search}\` Runtime Context
 Conversation Date & Time: ${replaceSpecialVars({ text: '{{iso_datetime}}', now })}`.trim();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as Ariakit from '@ariakit/react';
 import { Brain, ChevronDown } from 'lucide-react';
-import { ThinkingEffort, ReasoningEffort } from 'librechat-data-provider';
+import { ThinkingEffort, ReasoningEffort, ThinkingControlMode } from 'librechat-data-provider';
 import { useSetIndexOptions } from '~/hooks';
 import { useChatContext } from '~/Providers';
 import { cn } from '~/utils';
@@ -20,7 +20,7 @@ const REASONING_EFFORT_OPTIONS = [
 ] as const;
 
 interface Props {
-  thinkingControlMode?: 'mindcontrol' | 'reasoning_effort';
+  thinkingControlMode?: ThinkingControlMode;
 }
 
 export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
@@ -32,7 +32,7 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
     return null;
   }
 
-  const isMindControl = thinkingControlMode === 'mindcontrol';
+  const isMindControl = thinkingControlMode === ThinkingControlMode.mindcontrol;
 
   if (isMindControl) {
     const currentValue = conversation?.thinkingEffort ?? ThinkingEffort.auto;
@@ -43,14 +43,15 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
       setIsOpen(false);
     };
 
-    const currentLabel = MIND_CONTROL_OPTIONS.find((o) => o.value === currentValue)?.label ?? 'Auto';
+    const currentLabel =
+      MIND_CONTROL_OPTIONS.find((o) => o.value === currentValue)?.label ?? 'Auto';
 
     return (
       <Ariakit.MenuProvider open={isOpen} setOpen={setIsOpen}>
         <Ariakit.MenuButton
           className={cn(
             'group relative inline-flex items-center justify-center gap-1.5',
-            'border border-border-medium text-sm font-medium transition-all',
+            'border-border-medium border text-sm font-medium transition-all',
             'h-9 min-w-9 rounded-full bg-transparent px-2.5 shadow-sm',
             'hover:bg-surface-hover hover:shadow-md active:shadow-inner',
             isNonDefault && 'md:w-fit md:justify-start md:px-3',
@@ -60,10 +61,10 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
           <Brain className="h-4 w-4" aria-hidden="true" />
           {isNonDefault && (
             <>
-              <span className="hidden text-text-primary md:block">{currentLabel}</span>
+              <span className="text-text-primary hidden md:block">{currentLabel}</span>
               <ChevronDown
                 className={cn(
-                  'hidden h-3 w-3 text-text-secondary transition-transform md:block',
+                  'text-text-secondary hidden h-3 w-3 transition-transform md:block',
                   isOpen && 'rotate-180',
                 )}
               />
@@ -76,9 +77,9 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
           modal={true}
           unmountOnHide={true}
           className={cn(
-            'z-50 flex min-w-[120px] flex-col rounded-xl',
-            'border border-border-light bg-presentation p-1.5 shadow-lg',
-            'origin-top opacity-0 transition-[opacity,transform] duration-200 ease-out',
+            'rounded-theme-menu-panel z-50 flex min-w-[120px] flex-col',
+            'border-border-light bg-presentation border p-1.5 shadow-lg',
+            'origin-top opacity-0 transition duration-200 ease-out',
             'data-[enter]:scale-100 data-[enter]:opacity-100',
             'scale-95 data-[leave]:scale-95 data-[leave]:opacity-0',
           )}
@@ -119,7 +120,7 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
       <Ariakit.MenuButton
         className={cn(
           'group relative inline-flex items-center justify-center gap-1.5',
-          'border border-border-medium text-sm font-medium transition-all',
+          'border-border-medium border text-sm font-medium transition-all',
           'h-9 min-w-9 rounded-full bg-transparent px-2.5 shadow-sm',
           'hover:bg-surface-hover hover:shadow-md active:shadow-inner',
           isNonDefault && 'md:w-fit md:justify-start md:px-3',
@@ -129,10 +130,10 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
         <Brain className="h-4 w-4" aria-hidden="true" />
         {isNonDefault && (
           <>
-            <span className="hidden text-text-primary md:block">{currentLabel}</span>
+            <span className="text-text-primary hidden md:block">{currentLabel}</span>
             <ChevronDown
               className={cn(
-                'hidden h-3 w-3 text-text-secondary transition-transform md:block',
+                'text-text-secondary hidden h-3 w-3 transition-transform md:block',
                 isOpen && 'rotate-180',
               )}
             />
@@ -145,9 +146,9 @@ export default function ThinkingEffortDropdown({ thinkingControlMode }: Props) {
         modal={true}
         unmountOnHide={true}
         className={cn(
-          'z-50 flex min-w-[120px] flex-col rounded-xl',
-          'border border-border-light bg-presentation p-1.5 shadow-lg',
-          'origin-top opacity-0 transition-[opacity,transform] duration-200 ease-out',
+          'rounded-theme-menu-panel z-50 flex min-w-[120px] flex-col',
+          'border-border-light bg-presentation border p-1.5 shadow-lg',
+          'origin-top opacity-0 transition duration-200 ease-out',
           'data-[enter]:scale-100 data-[enter]:opacity-100',
           'scale-95 data-[leave]:scale-95 data-[leave]:opacity-0',
         )}

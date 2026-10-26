@@ -17,7 +17,7 @@ function CheckboxIndicator({ isSelected }: { isSelected: boolean }) {
       className={cn(
         'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border',
         isSelected
-          ? 'border-green-500 bg-green-500 text-white'
+          ? 'border-status-success-strong bg-status-success-strong text-white'
           : 'border-border-medium bg-transparent',
       )}
     >
@@ -44,15 +44,15 @@ function KnowledgeBaseMenuListItem({
       }}
       className={cn(
         'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
-        'transition-colors hover:bg-surface-hover',
-        isSelected && 'bg-green-50 dark:bg-green-950',
+        'hover:bg-surface-hover transition-colors',
+        isSelected && 'bg-status-success-subtle',
       )}
     >
       <CheckboxIndicator isSelected={isSelected} />
       <div className="flex min-w-0 flex-col">
         <span className="truncate font-medium">{project.displayName || project.name}</span>
         {project.description && (
-          <span className="truncate text-xs text-text-secondary">{project.description}</span>
+          <span className="text-text-secondary truncate text-xs">{project.description}</span>
         )}
       </div>
     </Ariakit.MenuItem>
@@ -76,8 +76,8 @@ function KnowledgeBaseMenuList({ manager }: { manager: KnowledgeBaseManager }) {
         }}
         className={cn(
           'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
-          'transition-colors hover:bg-surface-hover',
-          isGlobalSelected && 'bg-green-50 dark:bg-green-950',
+          'hover:bg-surface-hover transition-colors',
+          isGlobalSelected && 'bg-status-success-subtle',
         )}
       >
         <CheckboxIndicator isSelected={isGlobalSelected} />
@@ -85,7 +85,7 @@ function KnowledgeBaseMenuList({ manager }: { manager: KnowledgeBaseManager }) {
           <span className="truncate font-medium">{localize('com_ui_all_projects')}</span>
         </div>
       </Ariakit.MenuItem>
-      <div className="my-1 h-px flex-shrink-0 bg-border-light" aria-hidden="true" />
+      <div className="bg-border-light my-1 h-px flex-shrink-0" aria-hidden="true" />
       {selectableProjects.map((project) => (
         <KnowledgeBaseMenuListItem
           key={project.name}

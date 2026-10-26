@@ -2,12 +2,12 @@
 
 import React, { memo } from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Database } from 'lucide-react';
+import { TooltipAnchor } from '@librechat/client';
 import { PermissionTypes, Permissions } from 'librechat-data-provider';
-import { TooltipAnchor, VectorIcon } from '@librechat/client';
+import KnowledgeBaseMenuList from '~/components/Chat/Input/KnowledgeBaseMenuList';
 import { useHasAccess, useLocalize } from '~/hooks';
 import { useBadgeRowContext } from '~/Providers';
-import KnowledgeBaseMenuList from '~/components/Chat/Input/KnowledgeBaseMenuList';
 import { cn } from '~/utils';
 
 function KnowledgeBaseSelectContent() {
@@ -44,26 +44,24 @@ function KnowledgeBaseSelectContent() {
             className={cn(
               'group relative inline-flex items-center justify-center gap-1.5',
               hasProject
-                ? 'border border-green-600/40 bg-green-500/10 text-sm font-medium transition-all'
-                : 'border border-border-medium bg-transparent text-sm font-medium transition-all',
+                ? 'border-status-success-border bg-status-success-strong/10 border text-sm font-medium transition-all'
+                : 'border-border-medium border bg-transparent text-sm font-medium transition-all',
               'h-9 min-w-9 rounded-full px-2.5 shadow-sm',
-              'hover:bg-green-700/10 hover:shadow-md active:shadow-inner',
+              'hover:bg-status-success-strong/10 hover:shadow-md active:shadow-inner',
               'md:w-fit md:justify-start md:px-3',
-              isOpen && (hasProject ? 'bg-green-700/10' : 'bg-surface-hover'),
+              isOpen && (hasProject ? 'bg-status-success-strong/10' : 'bg-surface-hover'),
             )}
           />
         }
       >
-        <VectorIcon
-          className={cn(
-            'size-3.5',
-            hasProject ? 'text-green-600 dark:text-green-400' : 'text-text-secondary',
-          )}
+        <Database
+          aria-hidden="true"
+          className={cn('size-3.5', hasProject ? 'text-status-success' : 'text-text-secondary')}
         />
-        <span className="hidden truncate text-text-primary md:block">{displayText}</span>
+        <span className="text-text-primary hidden truncate md:block">{displayText}</span>
         <ChevronDown
           className={cn(
-            'hidden h-3 w-3 text-text-secondary transition-transform md:block',
+            'text-text-secondary hidden h-3 w-3 transition-transform md:block',
             isOpen && 'rotate-180',
           )}
         />
@@ -76,9 +74,9 @@ function KnowledgeBaseSelectContent() {
         unmountOnHide={true}
         aria-label={placeholderText}
         className={cn(
-          'z-50 flex min-w-[260px] max-w-[320px] flex-col rounded-xl',
-          'border border-border-light bg-presentation p-1.5 shadow-lg',
-          'origin-top opacity-0 transition-[opacity,transform] duration-200 ease-out',
+          'rounded-theme-menu-panel z-50 flex max-w-[320px] min-w-[260px] flex-col',
+          'border-border-light bg-presentation border p-1.5 shadow-lg',
+          'origin-top opacity-0 transition duration-200 ease-out',
           'data-[enter]:scale-100 data-[enter]:opacity-100',
           'scale-95 data-[leave]:scale-95 data-[leave]:opacity-0',
         )}

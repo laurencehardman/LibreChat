@@ -11,6 +11,8 @@ export interface KnowledgeBaseProject {
   description?: string;
 }
 
+const EMPTY_PROJECTS: KnowledgeBaseProject[] = [];
+
 export interface KnowledgeBaseManager {
   isPinned: boolean;
   setIsPinned: (v: boolean) => void;
@@ -34,7 +36,10 @@ export function useKnowledgeBaseManager({
     permission: Permissions.USE,
   });
 
-  const { data: projects = [], isLoading } = useGetKnowledgeBaseProjects({ enabled: canUse });
+  const { data: projectsData, isLoading } = useGetKnowledgeBaseProjects({ enabled: canUse });
+  /* Stable identity while the query has no data: a fresh default array per
+     render would defeat the memo below and, through it, the provider's. */
+  const projects = projectsData ?? EMPTY_PROJECTS;
 
   /* ------------------------------------------------------------------ */
   /*  Pin state                                                          */
@@ -129,15 +134,30 @@ export function useKnowledgeBaseManager({
   /* ------------------------------------------------------------------ */
   const placeholderText = localize('com_assistants_knowledge_base');
 
-  return {
-    isPinned,
-    setIsPinned,
-    selectedProjects,
-    selectableProjects: projects,
-    toggleProject,
-    toggleGlobal,
-    isGlobalSelected,
-    placeholderText,
-    isLoading,
-  };
+  /* Memoized: BadgeRowProvider holds this in its memoized context value, so a
+     fresh object per render would invalidate every consumer on each keystroke. */
+  return useMemo(
+    () => ({
+      isPinned,
+      setIsPinned,
+      selectedProjects,
+      selectableProjects: projects,
+      toggleProject,
+      toggleGlobal,
+      isGlobalSelected,
+      placeholderText,
+      isLoading,
+    }),
+    [
+      isPinned,
+      setIsPinned,
+      selectedProjects,
+      projects,
+      toggleProject,
+      toggleGlobal,
+      isGlobalSelected,
+      placeholderText,
+      isLoading,
+    ],
+  );
 }

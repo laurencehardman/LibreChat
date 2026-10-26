@@ -1,10 +1,17 @@
 import { Tools } from 'librechat-data-provider';
 
+/**
+ * KB projects that remain queryable regardless of the user's project selection.
+ * `company-wiki` is the Travelstart company wiki — the map of the technical
+ * estate that the system prompt directs the model to consult for orientation.
+ */
+export const ALWAYS_ALLOWED_KB_PROJECTS: string[] = ['company-wiki'];
+
 export function buildKnowledgeBaseContext(): string {
-    return `# \`${Tools.knowledge_base}\`:
+  return `# \`${Tools.knowledge_base}\`:
 Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.
 
-**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**
+**Use this tool when the user explicitly asks you to search the knowledge base or directs you to look something up in project documentation or internal sources, or when the request needs Travelstart platform orientation — which repo or service owns a behaviour, how systems interact, where an integration lives. The "company-wiki" project (the Travelstart company wiki) is always queryable, even when other projects are selected; prefer it as the first orientation step for Travelstart-specific development tasks.**
 
 Because rephrasing a query returns substantially the same top results, iterating through keyword variations is wasteful.
 
@@ -15,4 +22,3 @@ Hard limits:
 
 The tool returns chunks, not whole files. Synthesise from the chunks you receive — do not expect to find a single canonical source document, and do not keep searching hoping for one.`.trim();
 }
-

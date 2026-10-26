@@ -1,7 +1,7 @@
 # `knowledge_base`:
 Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.
 
-**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**
+**Use this tool when the user explicitly asks you to search the knowledge base or directs you to look something up in project documentation or internal sources, or when the request needs Travelstart platform orientation — which repo or service owns a behaviour, how systems interact, where an integration lives. The "company-wiki" project (the Travelstart company wiki) is always queryable, even when other projects are selected; prefer it as the first orientation step for Travelstart-specific development tasks.**
 
 Because rephrasing a query returns substantially the same top results, iterating through keyword variations is wasteful.
 

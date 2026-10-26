@@ -15,6 +15,7 @@ const {
   GenerationJobManager,
   isActionDomainAllowed,
   buildWebSearchContext,
+  buildKnowledgeBaseContext,
   buildImageToolContext,
   buildToolClassification,
   getMissingCustomUserVars,
@@ -594,7 +595,7 @@ async function loadToolDefinitionsWrapper({
       return checkCapability(AgentCapabilities.file_search);
     }
     if (tool === Tools.knowledge_base) {
-      return true;                                 // gated at ephemeralAgent/modelSpec level
+      return true; // gated at ephemeralAgent/modelSpec level
     }
     if (tool === Tools.execute_code) {
       return checkCapability(AgentCapabilities.execute_code);
@@ -1079,7 +1080,8 @@ async function loadToolDefinitionsWrapper({
   const hasExecuteCode = filteredTools.includes(Tools.execute_code);
 
   if (hasWebSearch) {
-    toolContextMap[Tools.web_search] = await getToolInstruction(Tools.web_search) ?? buildWebSearchContext();
+    toolContextMap[Tools.web_search] =
+      (await getToolInstruction(Tools.web_search)) ?? buildWebSearchContext();
     dynamicToolContextMap[Tools.web_search] = buildWebSearchDynamicContext(
       req.conversationCreatedAt,
     );
@@ -1089,20 +1091,7 @@ async function loadToolDefinitionsWrapper({
 
   if (hasKnowledgeBase) {
     let instruction =
-      await getToolInstruction(Tools.knowledge_base) ??
-      '# `' + Tools.knowledge_base + '`:\n' +
-        'Semantic (embedding) search across the shared knowledge base (source code, internal docs, reference materials). Returns document chunks ranked by embedding similarity — not by keyword match.\n' +
-        '\n' +
-        '**Use this tool ONLY when the user explicitly asks you to search the knowledge base, or directs you to look something up in project documentation or internal sources.**\n' +
-        '\n' +
-        'Because rephrasing a query returns substantially the same top results, iterating through keyword variations is wasteful.\n' +
-        '\n' +
-        'Hard limits:\n' +
-        '- 3 knowledge_base calls maximum per user question, no exceptions.\n' +
-        '- Never issue two queries that differ only by rewording. A second query is only justified if it targets a genuinely different aspect of the question (e.g. "endpoint routes" vs "middleware implementation" — different, not synonyms).\n' +
-        '- If you haven\'t found enough after 3 queries, synthesise the best answer you can from what you have and note any gaps.\n' +
-        '\n' +
-        'The tool returns chunks, not whole files. Synthesise from the chunks you receive — do not expect to find a single canonical source document, and do not keep searching hoping for one.';
+      (await getToolInstruction(Tools.knowledge_base)) ?? buildKnowledgeBaseContext();
 
     const knowledgeBaseProjects = req.body?.knowledge_base_projects;
     if (knowledgeBaseProjects && knowledgeBaseProjects.length > 0) {
@@ -1290,7 +1279,7 @@ async function loadAgentTools({
       includesWebSearch = checkCapability(AgentCapabilities.web_search);
       return includesWebSearch;
     } else if (tool === Tools.knowledge_base) {
-      return true;                                 // gated at ephemeralAgent/modelSpec level
+      return true; // gated at ephemeralAgent/modelSpec level
     } else if (tool === Tools.memory) {
       return checkCapability(AgentCapabilities.memory);
     } else if (tool === ASK_USER_QUESTION_TOOL_NAME) {
